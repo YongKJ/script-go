@@ -5,7 +5,7 @@ import "script-go/src/application"
 type ScriptGo struct {
 }
 
-func constructor() *ScriptGo {
+func scriptGo() *ScriptGo {
 	return &ScriptGo{}
 }
 
@@ -18,6 +18,6 @@ func (s *ScriptGo) run() {
 }
 
 func main() {
-	scriptGo := constructor()
+	scriptGo := scriptGo()
 	scriptGo.run()
 }
