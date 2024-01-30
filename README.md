@@ -1,2 +1,2 @@
-# script-ts
-Write scripts by ts.
+# script-go
+Write scripts by go.
