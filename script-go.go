@@ -5,19 +5,19 @@ import "script-go/src/application"
 type ScriptGo struct {
 }
 
-func scriptGo() *ScriptGo {
+func NewScriptGo() *ScriptGo {
 	return &ScriptGo{}
 }
 
 func (s *ScriptGo) run() {
-	//app := new(application.Application)
+	//app := application.NewApplication()
 	//app.Run()
 
-	appTest := new(application.ApplicationTest)
+	appTest := application.NewApplicationTest()
 	appTest.Test()
 }
 
 func main() {
-	scriptGo := scriptGo()
+	scriptGo := NewScriptGo()
 	scriptGo.run()
 }

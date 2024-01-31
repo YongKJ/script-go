@@ -5,7 +5,7 @@ import "script-go/src/application/applet/demo"
 type Application struct {
 }
 
-func application() *Application {
+func NewApplication() *Application {
 	return &Application{}
 }
 
