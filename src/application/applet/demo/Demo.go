@@ -6,7 +6,7 @@ type Demo struct {
 	msg string
 }
 
-func demo() *Demo {
+func NewDemo() *Demo {
 	return &Demo{
 		"Hello world!",
 	}
@@ -17,6 +17,6 @@ func (d *Demo) test() {
 }
 
 func Run() {
-	demo := demo()
+	demo := NewDemo()
 	demo.test()
 }
