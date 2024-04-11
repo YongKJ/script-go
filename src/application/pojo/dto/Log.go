@@ -4,10 +4,10 @@ type Log struct {
 	className  string
 	methodName string
 	paramName  string
-	value      interface{}
+	value      any
 }
 
-func NewLog(className string, methodName string, paramName string, value interface{}) *Log {
+func NewLog(className string, methodName string, paramName string, value any) *Log {
 	return &Log{
 		className:  className,
 		methodName: methodName,
@@ -16,11 +16,11 @@ func NewLog(className string, methodName string, paramName string, value interfa
 	}
 }
 
-func (l *Log) Value() interface{} {
+func (l *Log) Value() any {
 	return l.value
 }
 
-func (l *Log) SetValue(value interface{}) {
+func (l *Log) SetValue(value any) {
 	l.value = value
 }
 

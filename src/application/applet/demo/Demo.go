@@ -22,7 +22,7 @@ func (d *Demo) test() {
 	demoLogLine("test", "d.msg", d.msg)
 }
 
-func demoLogLine(methodName string, paramName string, value interface{}) {
+func demoLogLine(methodName string, paramName string, value any) {
 	logUtil.LoggerLine(dto.NewLog(
 		"Demo", methodName, paramName, value,
 	))
