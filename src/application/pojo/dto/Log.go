@@ -7,13 +7,17 @@ type Log struct {
 	value      any
 }
 
-func NewLog(className string, methodName string, paramName string, value any) *Log {
+func newLog(className string, methodName string, paramName string, value any) *Log {
 	return &Log{
 		className:  className,
 		methodName: methodName,
 		paramName:  paramName,
 		value:      value,
 	}
+}
+
+func OfLog(className string, methodName string, paramName string, value any) *Log {
+	return newLog(className, methodName, paramName, value)
 }
 
 func (l *Log) Value() any {

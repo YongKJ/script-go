@@ -6,13 +6,17 @@ import (
 	"script-go/src/application/pojo/dto"
 )
 
-var global = config.NewGlobal()
+var global = config.OfGlobal()
 
 type LogUtil struct {
 }
 
-func NewLogUtil() *LogUtil {
+func newLogUtil() *LogUtil {
 	return &LogUtil{}
+}
+
+func OfLogUtil() *LogUtil {
+	return newLogUtil()
 }
 
 func (l *LogUtil) LoggerLine(log *dto.Log) {

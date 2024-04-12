@@ -5,13 +5,13 @@ import (
 	"script-go/src/application/util"
 )
 
-var logUtil = util.NewLogUtil()
+var logUtil = util.OfLogUtil()
 
 type Demo struct {
 	msg string
 }
 
-func NewDemo() *Demo {
+func newDemo() *Demo {
 	return &Demo{
 		"Hello world!",
 	}
@@ -19,16 +19,10 @@ func NewDemo() *Demo {
 
 func (d *Demo) test() {
 	//fmt.Println(d.msg)
-	demoLogLine("test", "d.msg", d.msg)
-}
-
-func demoLogLine(methodName string, paramName string, value any) {
-	logUtil.LoggerLine(dto.NewLog(
-		"Demo", methodName, paramName, value,
-	))
+	logUtil.LoggerLine(dto.OfLog("Demo", "test", "d.msg", d.msg))
 }
 
 func Run() {
-	demo := NewDemo()
+	demo := newDemo()
 	demo.test()
 }
