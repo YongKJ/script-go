@@ -64,6 +64,10 @@ func AppDir() string {
 	return baseDir
 }
 
+func GetAbsPath(names ...string) string {
+	return filepath.Join(baseDir, filepath.Join(names...))
+}
+
 func Desktop() string {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
