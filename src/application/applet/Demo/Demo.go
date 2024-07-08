@@ -59,11 +59,11 @@ func (d *Demo) test2() {
 func (d *Demo) test3() {
 	lstData := make([]map[string]any, 2)
 	lstData[0] = map[string]any{
-		"id":  0,
+		"id":  1,
 		"msg": "Hello world!",
 	}
 	lstData[1] = map[string]any{
-		"id":  1,
+		"id":  2,
 		"msg": "Demo test.",
 	}
 

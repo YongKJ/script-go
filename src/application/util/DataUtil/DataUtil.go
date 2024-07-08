@@ -64,7 +64,8 @@ func MapToObject(mapData map[string]any, class any) any {
 func ArrayToObjects(arrayData []map[string]any, class any) any {
 	classes := make([]any, len(arrayData))
 	for i := 0; i < len(arrayData); i++ {
-		classes[i] = getObject(arrayData[i], deepCopy(class))
+		obj := deepCopy(class)
+		classes[i] = getObject(arrayData[i], &obj)
 	}
 	return classes
 }
@@ -171,7 +172,7 @@ func deepCopy(src any) any {
 				cpyFieldValue.Set(reflect.ValueOf(deepCopy(srcFiledValue)))
 			} else {
 				fmt.Println(reflect.ValueOf(srcFiledValue))
-				cpyFieldValue.Set(reflect.ValueOf(srcFiledValue))
+				cpyFieldValue.Set(reflect.ValueOf(srcFiledValue.Interface()))
 			}
 		}
 	default:
