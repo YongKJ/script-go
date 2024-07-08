@@ -3,6 +3,7 @@ package Demo
 import (
 	"encoding/base64"
 	lzstring "github.com/daku10/go-lz-string"
+	"script-go/src/application/deploy/pojo/po/Script"
 	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/LogUtil"
 )
@@ -49,8 +50,14 @@ func (d *Demo) test1() {
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "Test1", "string(message)", string(message)))
 }
 
+func (d *Demo) test2() {
+	lstScript := Script.Gets()
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "Test2", "lstScript", lstScript))
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test1()
+	demo.test2()
+	//demo.test1()
 	//demo.test()
 }

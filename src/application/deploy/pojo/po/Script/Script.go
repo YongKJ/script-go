@@ -65,7 +65,7 @@ func GetListByDir(appletDir string) []*Script {
 		yamlName := GenUtil.ToLine(name) + ".yaml"
 		scriptName := GenUtil.ToLine(name) + suffix
 		yamlConfig := filepath.Join(assetsDir, yamlName)
-		scriptConfig := filepath.Join(scriptDir, yamlName)
+		scriptConfig := filepath.Join(scriptDir, projectName, yamlName)
 		scriptPath := filepath.Join(scriptDir, projectName, scriptName)
 		scriptImport := fmt.Sprintf("import \"%s\"", importPath)
 
