@@ -22,6 +22,23 @@ import (
 	"unsafe"
 )
 
+func ArraysToAnyByRef(arrays any) []any {
+	values := reflect.ValueOf(arrays)
+	lstData := make([]any, values.Len())
+	for i := 0; i < values.Len(); i++ {
+		lstData[i] = values.Index(i).Interface()
+	}
+	return lstData
+}
+
+func ArraysToAny[A ~[]E, E any](arrays A) []any {
+	lstData := make([]any, len(arrays))
+	for i, array := range arrays {
+		lstData[i] = array
+	}
+	return lstData
+}
+
 func GetDecodeOSPaths(paths []string) []string {
 	lstPath := make([]string, len(paths))
 	for i, path := range paths {

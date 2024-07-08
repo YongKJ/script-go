@@ -2,10 +2,20 @@ package DataUtil
 
 import (
 	"encoding/json"
+	"github.com/jinzhu/copier"
 	"log"
 	"reflect"
 	"unsafe"
 )
+
+func JsonArrayToObjects(jsonStr string, class any) any {
+	var arrayData []map[string]any
+	err := json.Unmarshal([]byte(jsonStr), &arrayData)
+	if err != nil {
+		log.Println(err)
+	}
+	return ArrayToObjects(arrayData, class)
+}
 
 func JsonArrayToMaps(jsonStr string) []map[string]any {
 	var arrayData []map[string]any
@@ -51,9 +61,16 @@ func MapToObject(mapData map[string]any, class any) any {
 	return getObject(mapData, class)
 }
 
-func ArrayToObjects(arrayData []map[string]any, classes []any) []any {
+func ArrayToObjects(arrayData []map[string]any, class any) any {
+	classes := make([]any, len(arrayData))
 	for i := 0; i < len(arrayData); i++ {
-		getObject(arrayData[i], classes[i])
+		var obj any
+		err := copier.Copy(&obj, &class)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		classes[i] = getObject(arrayData[i], &obj)
 	}
 	return classes
 }

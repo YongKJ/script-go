@@ -1,9 +1,6 @@
 package Script
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
 	"path/filepath"
 	"runtime"
 	"script-go/src/application/util/DataUtil"
@@ -61,13 +58,12 @@ func GetListByDir(appletDir string) []*Script {
 		}
 		scriptRun := name
 		projectName := GenUtil.ToLine(name)
-		importPath := getImportPath(goPath)
+		scriptImport := getImportPath(goPath)
 		yamlName := GenUtil.ToLine(name) + ".yaml"
 		scriptName := GenUtil.ToLine(name) + suffix
 		yamlConfig := filepath.Join(assetsDir, yamlName)
 		scriptConfig := filepath.Join(scriptDir, projectName, yamlName)
 		scriptPath := filepath.Join(scriptDir, projectName, scriptName)
-		scriptImport := fmt.Sprintf("import \"%s\"", importPath)
 
 		lstScript[i] = Of(
 			goName, goPath, yamlConfig, scriptName,
@@ -77,7 +73,7 @@ func GetListByDir(appletDir string) []*Script {
 	return lstScript
 }
 
-func getImportPath(path string) interface{} {
+func getImportPath(path string) string {
 	path = filepath.Dir(path)
 	path = strings.Split(path, "script-go")[1]
 	return "script-go" + strings.Replace(path, string(filepath.Separator), "/", -1)
@@ -94,47 +90,27 @@ func getScript(folder string) string {
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*Script {
-	var arrayData []map[string]any
-	err := json.Unmarshal([]byte(jsonArrayStr), &arrayData)
-	if err != nil {
-		log.Println(err)
-	}
-	return ArrayToObjects(arrayData)
+	return DataUtil.JsonArrayToObjects(jsonArrayStr, &Script{}).([]*Script)
 }
 
 func JsonToObject(jsonStr string) *Script {
-	var mapData map[string]any
-	err := json.Unmarshal([]byte(jsonStr), &mapData)
-	if err != nil {
-		log.Println(err)
-	}
-	return MapToObject(mapData)
+	return DataUtil.JsonToObject(jsonStr, &Script{}).(*Script)
 }
 
 func ArrayToObjects(arrayData []map[string]any) []*Script {
-	length := len(arrayData)
-	lstData := make([]*Script, length)
-	for i := 0; i < length; i++ {
-		lstData[i] = MapToObject(arrayData[i])
-	}
-	return lstData
+	return DataUtil.ArrayToObjects(arrayData, &Script{}).([]*Script)
 }
 
 func MapToObject(mapData map[string]any) *Script {
 	return DataUtil.MapToObject(mapData, &Script{}).(*Script)
 }
 
-func ObjectToMap(log *Script) map[string]any {
-	return DataUtil.ObjectToMap(log)
+func ObjectToMap(script *Script) map[string]any {
+	return DataUtil.ObjectToMap(script)
 }
 
-func ObjectsToArray(logs []*Script) []map[string]any {
-	length := len(logs)
-	lstData := make([]map[string]any, length)
-	for i := 0; i < length; i++ {
-		lstData[i] = ObjectToMap(logs[i])
-	}
-	return lstData
+func ObjectsToArray(scripts []*Script) []map[string]any {
+	return DataUtil.ObjectsToArray(GenUtil.ArraysToAny(scripts))
 }
 
 func (s *Script) GoName() string {
