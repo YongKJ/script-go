@@ -93,9 +93,13 @@ func getObject(mapData map[string]any, class any) any {
 
 		typeName := types.Field(i).Type.Name()
 		switch typeName {
-		//case "int":
-		//	value.Set(reflect.ValueOf(int(mapData[name].(float64))))
-		//	break
+		case "int":
+			if number, ok := mapData[name].(float64); ok {
+				value.Set(reflect.ValueOf(int(number)))
+			} else {
+				value.Set(reflect.ValueOf(mapData[name]))
+			}
+			break
 		default:
 			value.Set(reflect.ValueOf(mapData[name]))
 		}
