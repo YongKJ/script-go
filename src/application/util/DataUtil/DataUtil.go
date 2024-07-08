@@ -2,7 +2,7 @@ package DataUtil
 
 import (
 	"encoding/json"
-	"github.com/jinzhu/copier"
+	"fmt"
 	"log"
 	"reflect"
 	"unsafe"
@@ -64,13 +64,7 @@ func MapToObject(mapData map[string]any, class any) any {
 func ArrayToObjects(arrayData []map[string]any, class any) any {
 	classes := make([]any, len(arrayData))
 	for i := 0; i < len(arrayData); i++ {
-		var obj any
-		err := copier.Copy(&obj, &class)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		classes[i] = getObject(arrayData[i], &obj)
+		classes[i] = getObject(arrayData[i], deepCopy(class))
 	}
 	return classes
 }
@@ -131,4 +125,48 @@ func SetValue(class any, fieldKey string, fieldValue any) {
 	value := values.FieldByName(fieldKey)
 	value = reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
 	value.Set(reflect.ValueOf(fieldValue))
+}
+
+func deepCopy(src any) any {
+	if src == nil {
+		return nil
+	}
+
+	srcValue := reflect.ValueOf(src)
+	//srcType := reflect.TypeOf(src)
+
+	// 如果是指针，则需要解引用
+	for srcValue.Kind() == reflect.Ptr {
+		srcValue = srcValue.Elem()
+	}
+
+	// 根据源值创建一个新的目标值
+	cpy := reflect.New(srcValue.Type()).Elem()
+
+	fmt.Println(srcValue.Kind())
+	switch srcValue.Kind() {
+	case reflect.Array:
+		fallthrough
+	case reflect.Slice:
+		fallthrough
+	case reflect.Map:
+		fallthrough
+	case reflect.Struct:
+		fmt.Println(srcValue.NumField())
+		for i := 0; i < srcValue.NumField(); i++ {
+			filedValue := srcValue.Field(i)
+			filedValue = reflect.NewAt(filedValue.Type(), unsafe.Pointer(filedValue.UnsafeAddr())).Elem()
+			// 递归复制每一个字段
+			fmt.Println(filedValue)
+			if srcValue.Field(i).Kind() == reflect.Struct {
+				cpy.Field(i).Set(reflect.ValueOf(deepCopy(filedValue)))
+			} else {
+				cpy.Field(i).Set(reflect.ValueOf(filedValue))
+			}
+		}
+	default:
+		cpy.Set(srcValue)
+	}
+
+	return cpy.Interface()
 }

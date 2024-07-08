@@ -3,6 +3,7 @@ package Demo
 import (
 	"encoding/base64"
 	lzstring "github.com/daku10/go-lz-string"
+	"script-go/src/application/deploy/pojo/dto/DemoTest"
 	"script-go/src/application/deploy/pojo/po/Script"
 	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/LogUtil"
@@ -55,9 +56,25 @@ func (d *Demo) test2() {
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "Test2", "lstScript", lstScript))
 }
 
+func (d *Demo) test3() {
+	lstData := make([]map[string]any, 2)
+	lstData[0] = map[string]any{
+		"id":  0,
+		"msg": "Hello world!",
+	}
+	lstData[1] = map[string]any{
+		"id":  1,
+		"msg": "Demo test.",
+	}
+
+	lstObjData := DemoTest.ArrayToObjects(lstData)
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "lstObjData", lstObjData))
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test2()
+	demo.test3()
+	//demo.test2()
 	//demo.test1()
 	//demo.test()
 }
