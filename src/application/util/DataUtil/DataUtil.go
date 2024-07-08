@@ -2,7 +2,6 @@ package DataUtil
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"reflect"
 	"unsafe"
@@ -62,18 +61,12 @@ func MapToObject(mapData map[string]any, class any) any {
 }
 
 func ArrayToObjects(arrayData []map[string]any, class any) any {
-	//typ := reflect.TypeOf(class)
-	//typeArr := reflect.ArrayOf(len(arrayData), typ)
-	//classes := reflect.New(typeArr).Interface()
-
 	obj := reflect.ValueOf(class)
 	if obj.Kind() == reflect.Ptr {
 		obj = obj.Elem()
 	}
-	//typeArray := reflect.ArrayOf(len(arrayData), obj.Type().Elem())
-	typ := reflect.TypeOf(class)
 	classes := reflect.MakeSlice(
-		reflect.SliceOf(typ),
+		reflect.SliceOf(reflect.TypeOf(class)),
 		len(arrayData), len(arrayData),
 	)
 	for i := 0; i < len(arrayData); i++ {
@@ -140,58 +133,4 @@ func SetValue(class any, fieldKey string, fieldValue any) {
 	value := values.FieldByName(fieldKey)
 	value = reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
 	value.Set(reflect.ValueOf(fieldValue))
-}
-
-func deepCopy(src any) any {
-	if src == nil {
-		return nil
-	}
-
-	srcValue := reflect.ValueOf(src)
-	//srcType := reflect.TypeOf(src)
-
-	// 如果是指针，则需要解引用
-	for srcValue.Kind() == reflect.Ptr {
-		srcValue = srcValue.Elem()
-	}
-
-	// 根据源值创建一个新的目标值
-	cpy := reflect.New(srcValue.Type()).Elem()
-
-	fmt.Println(srcValue.Kind())
-	switch srcValue.Kind() {
-	case reflect.Array:
-		fallthrough
-	case reflect.Slice:
-		fallthrough
-	case reflect.Map:
-		fallthrough
-	case reflect.Struct:
-		fmt.Println(srcValue.NumField())
-		for i := 0; i < srcValue.NumField(); i++ {
-			srcFiledValue := srcValue.Field(i)
-			srcFiledValue = reflect.NewAt(srcFiledValue.Type(), unsafe.Pointer(srcFiledValue.UnsafeAddr())).Elem()
-			fmt.Println(srcFiledValue)
-			fmt.Println(srcFiledValue.Type())
-			fmt.Println(srcFiledValue.Type().Name())
-
-			cpyFieldValue := cpy.Field(i)
-			cpyFieldValue = reflect.NewAt(cpyFieldValue.Type(), unsafe.Pointer(cpyFieldValue.UnsafeAddr())).Elem()
-			fmt.Println(cpyFieldValue)
-			fmt.Println(cpyFieldValue.Type())
-			fmt.Println(cpyFieldValue.Type().Name())
-
-			// 递归复制每一个字段
-			if srcValue.Field(i).Kind() == reflect.Struct {
-				cpyFieldValue.Set(reflect.ValueOf(deepCopy(srcFiledValue)))
-			} else {
-				fmt.Println(reflect.ValueOf(srcFiledValue))
-				cpyFieldValue.Set(reflect.ValueOf(srcFiledValue.Interface()))
-			}
-		}
-	default:
-		cpy.Set(srcValue)
-	}
-
-	return cpy.Interface()
 }
