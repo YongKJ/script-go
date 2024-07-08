@@ -70,8 +70,8 @@ func ArrayToObjects(arrayData []map[string]any, class any) any {
 		len(arrayData), len(arrayData),
 	)
 	for i := 0; i < len(arrayData); i++ {
-		cpyObj := reflect.New(obj.Type())
-		objData := getObject(arrayData[i], cpyObj.Interface())
+		cpyObj := reflect.New(obj.Type()).Interface()
+		objData := getObject(arrayData[i], cpyObj)
 		classes.Index(i).Set(reflect.ValueOf(objData))
 	}
 	return classes.Interface()
