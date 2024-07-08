@@ -34,12 +34,12 @@ func MapToObject(mapData map[string]any) *DemoTest {
 	return DataUtil.MapToObject(mapData, &DemoTest{}).(*DemoTest)
 }
 
-func ObjectToMap(script *DemoTest) map[string]any {
-	return DataUtil.ObjectToMap(script)
+func ObjectToMap(demoTest *DemoTest) map[string]any {
+	return DataUtil.ObjectToMap(demoTest)
 }
 
-func ObjectsToArray(scripts []*DemoTest) []map[string]any {
-	return DataUtil.ObjectsToArray(GenUtil.ArraysToAny(scripts))
+func ObjectsToArray(demoTests []*DemoTest) []map[string]any {
+	return DataUtil.ObjectsToArray(GenUtil.ArraysToAny(demoTests))
 }
 
 func (d *DemoTest) Id() int {
