@@ -62,12 +62,26 @@ func MapToObject(mapData map[string]any, class any) any {
 }
 
 func ArrayToObjects(arrayData []map[string]any, class any) any {
-	classes := make([]any, len(arrayData))
-	for i := 0; i < len(arrayData); i++ {
-		obj := deepCopy(class)
-		classes[i] = getObject(arrayData[i], &obj)
+	//typ := reflect.TypeOf(class)
+	//typeArr := reflect.ArrayOf(len(arrayData), typ)
+	//classes := reflect.New(typeArr).Interface()
+
+	obj := reflect.ValueOf(class)
+	if obj.Kind() == reflect.Ptr {
+		obj = obj.Elem()
 	}
-	return classes
+	//typeArray := reflect.ArrayOf(len(arrayData), obj.Type().Elem())
+	typ := reflect.TypeOf(class)
+	classes := reflect.MakeSlice(
+		reflect.SliceOf(typ),
+		len(arrayData), len(arrayData),
+	)
+	for i := 0; i < len(arrayData); i++ {
+		cpyObj := reflect.New(obj.Type())
+		objData := getObject(arrayData[i], cpyObj.Interface())
+		classes.Index(i).Set(reflect.ValueOf(objData))
+	}
+	return classes.Interface()
 }
 
 func getObject(mapData map[string]any, class any) any {
@@ -86,9 +100,9 @@ func getObject(mapData map[string]any, class any) any {
 
 		typeName := types.Field(i).Type.Name()
 		switch typeName {
-		case "int":
-			value.Set(reflect.ValueOf(int(mapData[name].(float64))))
-			break
+		//case "int":
+		//	value.Set(reflect.ValueOf(int(mapData[name].(float64))))
+		//	break
 		default:
 			value.Set(reflect.ValueOf(mapData[name]))
 		}
