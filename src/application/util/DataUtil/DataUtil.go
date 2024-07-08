@@ -154,14 +154,24 @@ func deepCopy(src any) any {
 	case reflect.Struct:
 		fmt.Println(srcValue.NumField())
 		for i := 0; i < srcValue.NumField(); i++ {
-			filedValue := srcValue.Field(i)
-			filedValue = reflect.NewAt(filedValue.Type(), unsafe.Pointer(filedValue.UnsafeAddr())).Elem()
+			srcFiledValue := srcValue.Field(i)
+			srcFiledValue = reflect.NewAt(srcFiledValue.Type(), unsafe.Pointer(srcFiledValue.UnsafeAddr())).Elem()
+			fmt.Println(srcFiledValue)
+			fmt.Println(srcFiledValue.Type())
+			fmt.Println(srcFiledValue.Type().Name())
+
+			cpyFieldValue := cpy.Field(i)
+			cpyFieldValue = reflect.NewAt(cpyFieldValue.Type(), unsafe.Pointer(cpyFieldValue.UnsafeAddr())).Elem()
+			fmt.Println(cpyFieldValue)
+			fmt.Println(cpyFieldValue.Type())
+			fmt.Println(cpyFieldValue.Type().Name())
+
 			// 递归复制每一个字段
-			fmt.Println(filedValue)
 			if srcValue.Field(i).Kind() == reflect.Struct {
-				cpy.Field(i).Set(reflect.ValueOf(deepCopy(filedValue)))
+				cpyFieldValue.Set(reflect.ValueOf(deepCopy(srcFiledValue)))
 			} else {
-				cpy.Field(i).Set(reflect.ValueOf(filedValue))
+				fmt.Println(reflect.ValueOf(srcFiledValue))
+				cpyFieldValue.Set(reflect.ValueOf(srcFiledValue))
 			}
 		}
 	default:
