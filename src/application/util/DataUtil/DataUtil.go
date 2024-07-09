@@ -47,7 +47,7 @@ func ObjectToMap(class any) map[string]any {
 	return getMap(class)
 }
 
-func ObjectsToArray(classes []any) []map[string]any {
+func ObjectsToArray[A ~[]E, E any](classes A) []map[string]any {
 	length := len(classes)
 	lstData := make([]map[string]any, length)
 	for i := 0; i < length; i++ {
@@ -65,13 +65,10 @@ func ArrayToObjects(arrayData []map[string]any, class any) any {
 	if obj.Kind() == reflect.Ptr {
 		obj = obj.Elem()
 	}
-	classes := reflect.MakeSlice(
-		reflect.SliceOf(reflect.TypeOf(class)),
-		len(arrayData), len(arrayData),
-	)
-	for i := 0; i < len(arrayData); i++ {
-		cpyObj := reflect.New(obj.Type()).Interface()
-		objData := getObject(arrayData[i], cpyObj)
+	classes := getArray(class, len(arrayData))
+	for i, mapData := range arrayData {
+		cpyObj := DeepCopy(class)
+		objData := getObject(mapData, cpyObj)
 		classes.Index(i).Set(reflect.ValueOf(objData))
 	}
 	return classes.Interface()
@@ -124,6 +121,34 @@ func getMap(class any) map[string]any {
 		mapData[name] = value.Interface()
 	}
 	return mapData
+}
+
+func getArray(class any, length int) reflect.Value {
+	return reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(class)), length, length)
+}
+
+func DeepCopy(class any) any {
+	values := reflect.ValueOf(class)
+	if values.Kind() == reflect.Ptr {
+		values = values.Elem()
+	}
+	types := reflect.TypeOf(class)
+	if types.Kind() == reflect.Ptr {
+		types = types.Elem()
+	}
+
+	cpyValues := reflect.New(values.Type()).Interface()
+	for i := 0; i < types.NumField(); i++ {
+		field := types.Field(i).Name
+		value := values.FieldByName(field)
+		value = reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
+		if value.Kind() != reflect.Ptr {
+			SetValue(cpyValues, field, value.Interface())
+			continue
+		}
+		SetValue(cpyValues, field, DeepCopy(value.Interface()))
+	}
+	return cpyValues
 }
 
 func SetValue(class any, fieldKey string, fieldValue any) {

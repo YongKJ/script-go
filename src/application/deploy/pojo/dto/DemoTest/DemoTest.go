@@ -1,21 +1,22 @@
 package DemoTest
 
 import (
+	"script-go/src/application/deploy/pojo/dto/TestDemo"
 	"script-go/src/application/util/DataUtil"
-	"script-go/src/application/util/GenUtil"
 )
 
 type DemoTest struct {
-	id  int
-	msg string
+	id       int
+	msg      string
+	testDemo *TestDemo.TestDemo
 }
 
-func newDemoTest(id int, msg string) *DemoTest {
-	return &DemoTest{id: id, msg: msg}
+func newDemoTest(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
+	return &DemoTest{id: id, msg: msg, testDemo: testDemo}
 }
 
-func Of(id int, msg string) *DemoTest {
-	return newDemoTest(id, msg)
+func Of(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
+	return newDemoTest(id, msg, testDemo)
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*DemoTest {
@@ -34,12 +35,12 @@ func MapToObject(mapData map[string]any) *DemoTest {
 	return DataUtil.MapToObject(mapData, &DemoTest{}).(*DemoTest)
 }
 
-func ObjectToMap(demoTest *DemoTest) map[string]any {
-	return DataUtil.ObjectToMap(demoTest)
+func ObjectToMap(data *DemoTest) map[string]any {
+	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(demoTests []*DemoTest) []map[string]any {
-	return DataUtil.ObjectsToArray(GenUtil.ArraysToAny(demoTests))
+func ObjectsToArray(lstData []*DemoTest) []map[string]any {
+	return DataUtil.ObjectsToArray(lstData)
 }
 
 func (d *DemoTest) Id() int {
@@ -56,4 +57,12 @@ func (d *DemoTest) Msg() string {
 
 func (d *DemoTest) SetMsg(msg string) {
 	d.msg = msg
+}
+
+func (d *DemoTest) TestDemo() *TestDemo.TestDemo {
+	return d.testDemo
+}
+
+func (d *DemoTest) SetTestDemo(testDemo *TestDemo.TestDemo) {
+	d.testDemo = testDemo
 }
