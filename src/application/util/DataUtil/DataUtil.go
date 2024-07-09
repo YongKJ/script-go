@@ -2,7 +2,6 @@ package DataUtil
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"reflect"
 	"unsafe"
@@ -92,10 +91,6 @@ func getObject(mapData map[string]any, class any) any {
 		}
 		value := values.FieldByName(name)
 		value = reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
-
-		fmt.Println(value.Kind())
-		fmt.Println(value.Type())
-		fmt.Println(types.Field(i).Type)
 
 		var refValue reflect.Value
 		switch value.Kind() {
