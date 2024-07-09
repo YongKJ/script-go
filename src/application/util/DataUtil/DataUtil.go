@@ -2,6 +2,7 @@ package DataUtil
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"reflect"
 	"unsafe"
@@ -92,18 +93,25 @@ func getObject(mapData map[string]any, class any) any {
 		value := values.FieldByName(name)
 		value = reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
 
-		typeName := types.Field(i).Type.Name()
-		switch typeName {
-		case "int":
+		fmt.Println(value.Kind())
+		fmt.Println(value.Type())
+		fmt.Println(types.Field(i).Type)
+
+		var refValue reflect.Value
+		switch value.Kind() {
+		case reflect.Int:
 			if number, ok := fieldValue.(float64); ok {
-				value.Set(reflect.ValueOf(int(number)))
+				refValue = reflect.ValueOf(int(number))
 			} else {
-				value.Set(reflect.ValueOf(fieldValue))
+				refValue = reflect.ValueOf(fieldValue)
 			}
-			break
+		case reflect.Ptr:
+			cpyValues := reflect.New(types.Field(i).Type).Interface()
+			refValue = reflect.ValueOf(MapToObject(fieldValue.(map[string]any), cpyValues))
 		default:
-			value.Set(reflect.ValueOf(fieldValue))
+			refValue = reflect.ValueOf(fieldValue)
 		}
+		value.Set(refValue)
 	}
 	return class
 }
@@ -146,11 +154,17 @@ func DeepCopy(class any) any {
 		field := types.Field(i).Name
 		value := values.FieldByName(field)
 		value = reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
-		if value.Kind() != reflect.Ptr {
-			SetValue(cpyValues, field, value.Interface())
-			continue
+
+		var fieldValue any
+		switch value.Kind() {
+		case reflect.Struct:
+			fieldValue = DeepCopy(fieldValue)
+		case reflect.Ptr:
+			fieldValue = DeepCopy(fieldValue)
+		default:
+			fieldValue = value.Interface()
 		}
-		SetValue(cpyValues, field, DeepCopy(value.Interface()))
+		SetValue(cpyValues, field, fieldValue)
 	}
 	return cpyValues
 }

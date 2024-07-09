@@ -108,11 +108,11 @@ func (d *Demo) test5() {
 		"msg": "Demo test.",
 	}
 
-	lstObjData := TestDemo.ArrayToObjects(lstData)
-	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "lstObjData", lstObjData))
+	//lstObjData := TestDemo.ArrayToObjects(lstData)
+	//LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "lstObjData", lstObjData))
 
-	objData := DataUtil.DeepCopy(lstObjData[0])
-	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "objData", objData))
+	//objData := DataUtil.DeepCopy(lstObjData[0])
+	//LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "objData", objData))
 
 	demoTest := DemoTest.MapToObject(lstData[0])
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "demoTest", demoTest))
