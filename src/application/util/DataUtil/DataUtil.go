@@ -85,20 +85,24 @@ func getObject(mapData map[string]any, class any) any {
 	}
 	for i := 0; i < types.NumField(); i++ {
 		name := types.Field(i).Name
+		fieldValue, ok := mapData[name]
+		if !ok {
+			continue
+		}
 		value := values.FieldByName(name)
 		value = reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
 
 		typeName := types.Field(i).Type.Name()
 		switch typeName {
 		case "int":
-			if number, ok := mapData[name].(float64); ok {
+			if number, ok := fieldValue.(float64); ok {
 				value.Set(reflect.ValueOf(int(number)))
 			} else {
-				value.Set(reflect.ValueOf(mapData[name]))
+				value.Set(reflect.ValueOf(fieldValue))
 			}
 			break
 		default:
-			value.Set(reflect.ValueOf(mapData[name]))
+			value.Set(reflect.ValueOf(fieldValue))
 		}
 	}
 	return class
