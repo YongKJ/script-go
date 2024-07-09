@@ -11,6 +11,7 @@ require (
 	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/integralist/go-findroot v0.0.0-20160518114804-ac90681525dc
 	github.com/shirou/gopsutil v3.21.11+incompatible
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -21,7 +22,6 @@ require (
 	github.com/creack/pty v1.1.21 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect

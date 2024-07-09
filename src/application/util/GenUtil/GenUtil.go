@@ -9,18 +9,85 @@ import (
 	"fmt"
 	lzstring "github.com/daku10/go-lz-string"
 	"github.com/golang-module/carbon/v2"
+	"gopkg.in/yaml.v3"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"regexp"
 	"runtime"
 	"script-go/src/application/pojo/dto/Log"
+	"script-go/src/application/util/FileUtil"
 	"script-go/src/application/util/LogUtil"
 	"strconv"
 	"strings"
 	"time"
 	"unsafe"
 )
+
+func GetValue(key string) any {
+	return GetConfig(GetYaml())[key]
+}
+
+func GetConfig(config string) map[string]any {
+	path := GetConfigPath(config)
+	content := FileUtil.Read(path)
+
+	mapData := make(map[string]any)
+	err := yaml.Unmarshal([]byte(content), &mapData)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return mapData
+}
+
+func GetConfigPath(config string) string {
+	path := FileUtil.GetAbsPath(config)
+	if FileUtil.Exist(path) {
+		return path
+	}
+	return FileUtil.GetAbsPath("src", "assets", config)
+}
+
+func GetYaml() string {
+	execPath, err := os.Executable()
+	if err != nil {
+		log.Println(err)
+	}
+	if strings.HasSuffix(execPath, "script_go.exe") ||
+		strings.HasSuffix(execPath, "script_go_test.exe") {
+		return GetYamlByContent(execPath)
+	}
+	index := strings.LastIndex(execPath, string(filepath.Separator))
+	return ToLine(strings.Replace(execPath[index+1:], ".exe", "", 1) + ".yaml")
+}
+
+func GetYamlByContent(execPath string) string {
+	appName := "Application.go"
+	if strings.HasSuffix(execPath, "script_go_test.exe") {
+		appName = "ApplicationTest.go"
+	}
+	appPath := FileUtil.GetAbsPath("src", "application", appName)
+	lines := FileUtil.ReadByLine(appPath)
+	regex := regexp.MustCompile("\\s+(\\S+)\\.Run\\(\\)")
+	for i := 0; i < len(lines); i++ {
+		line := lines[i]
+		if strings.Contains(line, "//") {
+			continue
+		}
+		match := regex.MatchString(line)
+		if !match {
+			continue
+		}
+		parts := regex.FindStringSubmatch(line)
+		if len(parts) == 0 {
+			continue
+		}
+		return ToLine(parts[1]) + ".yaml"
+	}
+	return ""
+}
 
 func ArraysToAnyByRef(arrays any) []any {
 	values := reflect.ValueOf(arrays)

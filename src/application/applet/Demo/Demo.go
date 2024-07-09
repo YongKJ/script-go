@@ -3,11 +3,15 @@ package Demo
 import (
 	"encoding/base64"
 	lzstring "github.com/daku10/go-lz-string"
+	"log"
+	"os"
+	"path/filepath"
 	"script-go/src/application/deploy/pojo/dto/DemoTest"
 	"script-go/src/application/deploy/pojo/dto/TestDemo"
 	"script-go/src/application/deploy/pojo/po/Script"
 	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/DataUtil"
+	"script-go/src/application/util/GenUtil"
 	"script-go/src/application/util/LogUtil"
 )
 
@@ -112,9 +116,42 @@ func (d *Demo) test5() {
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "demoTest", demoTest))
 }
 
+func (d *Demo) test6() {
+	appPath, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		log.Println(err)
+	}
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "appPath", appPath))
+
+	execPath, err := os.Executable()
+	if err != nil {
+		log.Println(err)
+	}
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "execPath", execPath))
+}
+
+func (d *Demo) test7() {
+	execPath, err := os.Executable()
+	if err != nil {
+		log.Println(err)
+	}
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "execPath", execPath))
+
+	yamlPath := GenUtil.GetYamlByContent(execPath)
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "yamlPath", yamlPath))
+}
+
+func (d *Demo) test8() {
+	msg := GenUtil.GetValue("msg")
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test8", "msg", msg))
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test5()
+	demo.test8()
+	//demo.test7()
+	//demo.test6()
+	//demo.test5()
 	//demo.test4()
 	//demo.test3()
 	//demo.test2()
