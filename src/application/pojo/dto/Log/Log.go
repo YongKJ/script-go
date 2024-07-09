@@ -1,8 +1,6 @@
 package Log
 
 import (
-	"encoding/json"
-	"log"
 	"script-go/src/application/util/DataUtil"
 )
 
@@ -27,47 +25,27 @@ func Of(className string, methodName string, paramName string, value any) *Log {
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*Log {
-	var arrayData []map[string]any
-	err := json.Unmarshal([]byte(jsonArrayStr), &arrayData)
-	if err != nil {
-		log.Println(err)
-	}
-	return ArrayToObjects(arrayData)
+	return DataUtil.JsonArrayToObjects(jsonArrayStr, &Log{}).([]*Log)
 }
 
 func JsonToObject(jsonStr string) *Log {
-	var mapData map[string]any
-	err := json.Unmarshal([]byte(jsonStr), &mapData)
-	if err != nil {
-		log.Println(err)
-	}
-	return MapToObject(mapData)
+	return DataUtil.JsonToObject(jsonStr, &Log{}).(*Log)
 }
 
 func ArrayToObjects(arrayData []map[string]any) []*Log {
-	length := len(arrayData)
-	lstData := make([]*Log, length)
-	for i := 0; i < length; i++ {
-		lstData[i] = MapToObject(arrayData[i])
-	}
-	return lstData
+	return DataUtil.ArrayToObjects(arrayData, &Log{}).([]*Log)
 }
 
 func MapToObject(mapData map[string]any) *Log {
 	return DataUtil.MapToObject(mapData, &Log{}).(*Log)
 }
 
-func ObjectToMap(log *Log) map[string]any {
-	return DataUtil.ObjectToMap(log)
+func ObjectToMap(data *Log) map[string]any {
+	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(logs []*Log) []map[string]any {
-	length := len(logs)
-	lstData := make([]map[string]any, length)
-	for i := 0; i < length; i++ {
-		lstData[i] = ObjectToMap(logs[i])
-	}
-	return lstData
+func ObjectsToArray(lstData []*Log) []map[string]any {
+	return DataUtil.ObjectsToArray(lstData)
 }
 
 func (l *Log) Value() any {

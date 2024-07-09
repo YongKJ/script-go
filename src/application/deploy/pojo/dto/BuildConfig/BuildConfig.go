@@ -1,8 +1,6 @@
 package BuildConfig
 
 import (
-	"encoding/json"
-	"log"
 	"script-go/src/application/util/DataUtil"
 )
 
@@ -25,47 +23,27 @@ func Of(appPath string, lstGoOS []string, lstGoArch []string, scriptRunPattern s
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*BuildConfig {
-	var arrayData []map[string]any
-	err := json.Unmarshal([]byte(jsonArrayStr), &arrayData)
-	if err != nil {
-		log.Println(err)
-	}
-	return ArrayToObjects(arrayData)
+	return DataUtil.JsonArrayToObjects(jsonArrayStr, &BuildConfig{}).([]*BuildConfig)
 }
 
 func JsonToObject(jsonStr string) *BuildConfig {
-	var mapData map[string]any
-	err := json.Unmarshal([]byte(jsonStr), &mapData)
-	if err != nil {
-		log.Println(err)
-	}
-	return MapToObject(mapData)
+	return DataUtil.JsonToObject(jsonStr, &BuildConfig{}).(*BuildConfig)
 }
 
 func ArrayToObjects(arrayData []map[string]any) []*BuildConfig {
-	length := len(arrayData)
-	lstData := make([]*BuildConfig, length)
-	for i := 0; i < length; i++ {
-		lstData[i] = MapToObject(arrayData[i])
-	}
-	return lstData
+	return DataUtil.ArrayToObjects(arrayData, &BuildConfig{}).([]*BuildConfig)
 }
 
 func MapToObject(mapData map[string]any) *BuildConfig {
 	return DataUtil.MapToObject(mapData, &BuildConfig{}).(*BuildConfig)
 }
 
-func ObjectToMap(buildConfig *BuildConfig) map[string]any {
-	return DataUtil.ObjectToMap(buildConfig)
+func ObjectToMap(data *BuildConfig) map[string]any {
+	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(buildConfigs []*BuildConfig) []map[string]any {
-	length := len(buildConfigs)
-	lstData := make([]map[string]any, length)
-	for i := 0; i < length; i++ {
-		lstData[i] = ObjectToMap(buildConfigs[i])
-	}
-	return lstData
+func ObjectsToArray(lstData []*BuildConfig) []map[string]any {
+	return DataUtil.ObjectsToArray(lstData)
 }
 
 func (b *BuildConfig) AppPath() string {

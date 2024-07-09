@@ -105,12 +105,12 @@ func MapToObject(mapData map[string]any) *Script {
 	return DataUtil.MapToObject(mapData, &Script{}).(*Script)
 }
 
-func ObjectToMap(script *Script) map[string]any {
-	return DataUtil.ObjectToMap(script)
+func ObjectToMap(data *Script) map[string]any {
+	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(scripts []*Script) []map[string]any {
-	return DataUtil.ObjectsToArray(GenUtil.ArraysToAny(scripts))
+func ObjectsToArray(lstData []*Script) []map[string]any {
+	return DataUtil.ObjectsToArray(lstData)
 }
 
 func (s *Script) GoName() string {
