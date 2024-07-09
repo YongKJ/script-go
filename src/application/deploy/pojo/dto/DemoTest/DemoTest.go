@@ -6,17 +6,16 @@ import (
 )
 
 type DemoTest struct {
-	id       int
-	msg      string
-	testDemo *TestDemo.TestDemo
+	id  int
+	msg string
 }
 
-func newDemoTest(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
-	return &DemoTest{id: id, msg: msg, testDemo: testDemo}
+func newDemoTest(id int, msg string) *DemoTest {
+	return &DemoTest{id: id, msg: msg}
 }
 
 func Of(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
-	return newDemoTest(id, msg, testDemo)
+	return newDemoTest(id, msg)
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*DemoTest {
@@ -57,12 +56,4 @@ func (d *DemoTest) Msg() string {
 
 func (d *DemoTest) SetMsg(msg string) {
 	d.msg = msg
-}
-
-func (d *DemoTest) TestDemo() *TestDemo.TestDemo {
-	return d.testDemo
-}
-
-func (d *DemoTest) SetTestDemo(testDemo *TestDemo.TestDemo) {
-	d.testDemo = testDemo
 }

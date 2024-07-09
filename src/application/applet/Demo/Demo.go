@@ -85,11 +85,9 @@ func (d *Demo) test4() {
 	testDemo := TestDemo.MapToObject(mapData)
 	demoTest := DemoTest.Of(2, "Demo test.", testDemo)
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test4", "demoTest", demoTest))
-	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test4", "demoTest.TestDemo()", demoTest.TestDemo()))
 
 	cpyDemoTest := DataUtil.DeepCopy(demoTest).(*DemoTest.DemoTest)
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test4", "cpyDemoTest", cpyDemoTest))
-	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test4", "cpyDemoTest.TestDemo()", cpyDemoTest.TestDemo()))
 
 }
 
@@ -98,10 +96,6 @@ func (d *Demo) test5() {
 	lstData[0] = map[string]any{
 		"id":  1,
 		"msg": "Hello world!",
-		"testDemo": map[string]any{
-			"id":  2,
-			"msg": "Demo test.",
-		},
 	}
 	lstData[1] = map[string]any{
 		"id":  2,
