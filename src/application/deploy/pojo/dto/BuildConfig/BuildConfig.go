@@ -8,31 +8,35 @@ import (
 type BuildConfig struct {
 	appPath               string
 	appTestPath           string
-	lstGoOS               []string
-	lstGoArch             []string
 	scriptRunPattern      string
 	scriptRunOriginal     string
 	packageImportPattern  string
 	packageImportOriginal string
+	mapData               map[string][]string
 }
 
-func newBuildConfig(appPath string, appTestPath string, lstGoOS []string, lstGoArch []string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
-	return &BuildConfig{appPath: appPath, appTestPath: appTestPath, lstGoOS: lstGoOS, lstGoArch: lstGoArch, scriptRunPattern: scriptRunPattern, scriptRunOriginal: scriptRunOriginal, packageImportPattern: packageImportPattern, packageImportOriginal: packageImportOriginal}
+func newBuildConfig(mapData map[string][]string, appPath string, appTestPath string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
+	return &BuildConfig{appPath: appPath, appTestPath: appTestPath, scriptRunPattern: scriptRunPattern, scriptRunOriginal: scriptRunOriginal, packageImportPattern: packageImportPattern, packageImportOriginal: packageImportOriginal, mapData: mapData}
 }
 
-func Of(appPath string, appTestPath string, lstGoOS []string, lstGoArch []string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
-	return newBuildConfig(appPath, appTestPath, lstGoOS, lstGoArch, scriptRunPattern, scriptRunOriginal, packageImportPattern, packageImportOriginal)
+func Of(mapData map[string][]string, appPath string, appTestPath string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
+	return newBuildConfig(mapData, appPath, appTestPath, scriptRunPattern, scriptRunOriginal, packageImportPattern, packageImportOriginal)
 }
 
 func Get() *BuildConfig {
-	lstGoArch := []string{"amd64", "arm64", "arm", "386"}
-	lstGoOS := []string{"windows", "linux", "android", "darwin"}
+	mapData := map[string][]string{
+		"windows": {"amd64", "arm64", "arm", "386"},
+		"linux":   {"amd64", "arm64", "arm", "386"},
+		"android": {"amd64", "arm64", "arm", "386"},
+		"darwin":  {"amd64", "arm64"},
+		"ios":     {"amd64", "arm64"},
+	}
 	appPath := FileUtil.GetAbsPath("src", "application", "Application.go")
 	appTestPath := FileUtil.GetAbsPath("src", "application", "ApplicationTest.go")
 	return Of(
-		appPath, appTestPath, lstGoOS, lstGoArch,
-		"", "",
-		"", "",
+		mapData, appPath, appTestPath,
+		"\\s+(\\S+)\\.Run\\(\\)", "Demo",
+		".+\"(.+)\"", "script-go/src/application/applet/Demo",
 	)
 }
 
@@ -76,22 +80,6 @@ func (b *BuildConfig) SetAppTestPath(appTestPath string) {
 	b.appTestPath = appTestPath
 }
 
-func (b *BuildConfig) LstGoOS() []string {
-	return b.lstGoOS
-}
-
-func (b *BuildConfig) SetLstGoOS(lstGoOS []string) {
-	b.lstGoOS = lstGoOS
-}
-
-func (b *BuildConfig) LstGoArch() []string {
-	return b.lstGoArch
-}
-
-func (b *BuildConfig) SetLstGoArch(lstGoArch []string) {
-	b.lstGoArch = lstGoArch
-}
-
 func (b *BuildConfig) ScriptRunPattern() string {
 	return b.scriptRunPattern
 }
@@ -122,4 +110,12 @@ func (b *BuildConfig) PackageImportOriginal() string {
 
 func (b *BuildConfig) SetPackageImportOriginal(packageImportOriginal string) {
 	b.packageImportOriginal = packageImportOriginal
+}
+
+func (b *BuildConfig) MapData() map[string][]string {
+	return b.mapData
+}
+
+func (b *BuildConfig) SetMapData(mapData map[string][]string) {
+	b.mapData = mapData
 }
