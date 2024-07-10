@@ -3,9 +3,11 @@ package Demo
 import (
 	"encoding/base64"
 	lzstring "github.com/daku10/go-lz-string"
+	"github.com/jinzhu/copier"
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"script-go/src/application/deploy/pojo/dto/DemoTest"
 	"script-go/src/application/deploy/pojo/dto/TestDemo"
 	"script-go/src/application/deploy/pojo/po/Script"
@@ -146,9 +148,30 @@ func (d *Demo) test8() {
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test8", "msg", msg))
 }
 
+func (d *Demo) test9() {
+	mapData := map[string]any{
+		"id":  1,
+		"msg": "Hello world!",
+	}
+	demoTest := DemoTest.MapToObject(mapData)
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test9", "demoTest", demoTest))
+
+	values := reflect.ValueOf(demoTest)
+	if values.Kind() == reflect.Ptr {
+		values = values.Elem()
+	}
+	cpyDemoTest := reflect.New(values.Type()).Interface()
+	err := copier.Copy(cpyDemoTest, demoTest)
+	if err != nil {
+		log.Println(err)
+	}
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test9", "cpyDemoTest", cpyDemoTest))
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test8()
+	demo.test9()
+	//demo.test8()
 	//demo.test7()
 	//demo.test6()
 	//demo.test5()
