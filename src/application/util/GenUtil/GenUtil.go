@@ -1,6 +1,7 @@
 package GenUtil
 
 import (
+	"bufio"
 	"container/list"
 	"crypto/md5"
 	"encoding/base64"
@@ -24,6 +25,15 @@ import (
 	"time"
 	"unsafe"
 )
+
+func ReadParams() []string {
+	reader := bufio.NewReader(os.Stdin)
+	text, err := reader.ReadString('\n')
+	if err != nil {
+		log.Println(err)
+	}
+	return StrToArray(strings.TrimSpace(text), " ")
+}
 
 func GetValue(key string) any {
 	return GetConfig(GetYaml())[key]

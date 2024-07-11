@@ -17,6 +17,7 @@ import (
 	"script-go/src/application/util/DataUtil"
 	"script-go/src/application/util/GenUtil"
 	"script-go/src/application/util/LogUtil"
+	"strings"
 )
 
 type Demo struct {
@@ -178,12 +179,24 @@ func (d *Demo) test10() {
 		fmt.Println("读取控制台输入失败:", err)
 		return
 	}
+	text = strings.TrimSpace(text)
 	fmt.Println("您输入的内容是:", text)
+}
+
+func (d *Demo) test11() {
+	fmt.Print("请输入内容: ")
+	params := GenUtil.ReadParams()
+	fmt.Println("您输入的内容是:", params)
+
+	fmt.Print("请输入内容: ")
+	params = GenUtil.ReadParams()
+	fmt.Println("您输入的内容是:", params)
 }
 
 func Run() {
 	demo := newDemo()
-	demo.test10()
+	demo.test11()
+	//demo.test10()
 	//demo.test9()
 	//demo.test8()
 	//demo.test7()
