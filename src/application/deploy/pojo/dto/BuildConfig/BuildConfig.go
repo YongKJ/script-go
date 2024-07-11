@@ -9,7 +9,7 @@ type BuildConfig struct {
 	appPath               string
 	appTestPath           string
 	crossBuildPath        string
-	mapData               map[string][]string
+	mapOS                 map[string][]string
 	cgoPattern            string
 	cgoOriginal           string
 	osPattern             string
@@ -24,16 +24,16 @@ type BuildConfig struct {
 	packageImportOriginal string
 }
 
-func newBuildConfig(appPath string, appTestPath string, crossBuildPath string, mapData map[string][]string, cgoPattern string, cgoOriginal string, osPattern string, osOriginal string, archPattern string, archOriginal string, distPattern string, distOriginal string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
-	return &BuildConfig{appPath: appPath, appTestPath: appTestPath, crossBuildPath: crossBuildPath, mapData: mapData, cgoPattern: cgoPattern, cgoOriginal: cgoOriginal, osPattern: osPattern, osOriginal: osOriginal, archPattern: archPattern, archOriginal: archOriginal, distPattern: distPattern, distOriginal: distOriginal, scriptRunPattern: scriptRunPattern, scriptRunOriginal: scriptRunOriginal, packageImportPattern: packageImportPattern, packageImportOriginal: packageImportOriginal}
+func newBuildConfig(appPath string, appTestPath string, crossBuildPath string, mapOS map[string][]string, cgoPattern string, cgoOriginal string, osPattern string, osOriginal string, archPattern string, archOriginal string, distPattern string, distOriginal string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
+	return &BuildConfig{appPath: appPath, appTestPath: appTestPath, crossBuildPath: crossBuildPath, mapOS: mapOS, cgoPattern: cgoPattern, cgoOriginal: cgoOriginal, osPattern: osPattern, osOriginal: osOriginal, archPattern: archPattern, archOriginal: archOriginal, distPattern: distPattern, distOriginal: distOriginal, scriptRunPattern: scriptRunPattern, scriptRunOriginal: scriptRunOriginal, packageImportPattern: packageImportPattern, packageImportOriginal: packageImportOriginal}
 }
 
-func Of(appPath string, appTestPath string, crossBuildPath string, mapData map[string][]string, cgoPattern string, cgoOriginal string, osPattern string, osOriginal string, archPattern string, archOriginal string, distPattern string, distOriginal string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
-	return newBuildConfig(appPath, appTestPath, crossBuildPath, mapData, cgoPattern, cgoOriginal, osPattern, osOriginal, archPattern, archOriginal, distPattern, distOriginal, scriptRunPattern, scriptRunOriginal, packageImportPattern, packageImportOriginal)
+func Of(appPath string, appTestPath string, crossBuildPath string, mapOS map[string][]string, cgoPattern string, cgoOriginal string, osPattern string, osOriginal string, archPattern string, archOriginal string, distPattern string, distOriginal string, scriptRunPattern string, scriptRunOriginal string, packageImportPattern string, packageImportOriginal string) *BuildConfig {
+	return newBuildConfig(appPath, appTestPath, crossBuildPath, mapOS, cgoPattern, cgoOriginal, osPattern, osOriginal, archPattern, archOriginal, distPattern, distOriginal, scriptRunPattern, scriptRunOriginal, packageImportPattern, packageImportOriginal)
 }
 
 func Get() *BuildConfig {
-	mapData := map[string][]string{
+	mapOS := map[string][]string{
 		"windows": {"amd64", "arm64", "arm", "386"},
 		"linux":   {"amd64", "arm64", "arm", "386"},
 		"android": {"amd64", "arm64", "arm", "386"},
@@ -44,7 +44,7 @@ func Get() *BuildConfig {
 	appPath := FileUtil.GetAbsPath("src", "application", "Application.go")
 	appTestPath := FileUtil.GetAbsPath("src", "application", "ApplicationTest.go")
 	return Of(
-		appPath, appTestPath, crossBuildPath, mapData,
+		appPath, appTestPath, crossBuildPath, mapOS,
 		".+CGO=(.+)", "1",
 		".+OS=(.+)", "windows",
 		".+ARCH=(.+)", "amd64",
@@ -52,6 +52,14 @@ func Get() *BuildConfig {
 		"\\s+(\\S+)\\.Run\\(\\)", "Demo",
 		".+\"(.+)\"", "script-go/src/application/applet/Demo",
 	)
+}
+
+func GetMapOSKeys(mapData map[string][]string) []string {
+	var lstKey []string
+	for key := range mapData {
+		lstKey = append(lstKey, key)
+	}
+	return lstKey
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*BuildConfig {
@@ -126,12 +134,12 @@ func (b *BuildConfig) SetPackageImportOriginal(packageImportOriginal string) {
 	b.packageImportOriginal = packageImportOriginal
 }
 
-func (b *BuildConfig) MapData() map[string][]string {
-	return b.mapData
+func (b *BuildConfig) MapOS() map[string][]string {
+	return b.mapOS
 }
 
-func (b *BuildConfig) SetMapData(mapData map[string][]string) {
-	b.mapData = mapData
+func (b *BuildConfig) SetMapOS(mapOS map[string][]string) {
+	b.mapOS = mapOS
 }
 
 func (b *BuildConfig) CrossBuildPath() string {

@@ -26,6 +26,14 @@ import (
 	"unsafe"
 )
 
+func Print(str ...string) {
+	fmt.Print(strings.Join(str, ""))
+}
+
+func Println(str ...string) {
+	fmt.Println(strings.Join(str, ""))
+}
+
 func ReadParams() []string {
 	reader := bufio.NewReader(os.Stdin)
 	text, err := reader.ReadString('\n')
@@ -33,6 +41,14 @@ func ReadParams() []string {
 		log.Println(err)
 	}
 	return StrToArray(strings.TrimSpace(text), " ")
+}
+
+func GetMapKeys(mapData map[string]any) []string {
+	var lstKey []string
+	for key := range mapData {
+		lstKey = append(lstKey, key)
+	}
+	return lstKey
 }
 
 func GetValue(key string) any {
