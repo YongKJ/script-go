@@ -434,8 +434,7 @@ func Modify(path string, regStr string, isAll bool, valueFunc func(matchStr stri
 		if len(parts) == 0 {
 			continue
 		}
-		newLine := strings.Replace(line, parts[1], valueFunc(parts[1]), 1)
-		lines[i] = newLine
+		lines[i] = strings.Replace(line, parts[1], valueFunc(parts[1]), 1)
 		if !isAll {
 			break
 		}
