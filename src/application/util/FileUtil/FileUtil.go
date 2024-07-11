@@ -284,7 +284,7 @@ func WriteStream(fileName string, content []byte) {
 	}
 }
 
-func Write(fileName string, content string) {
+func WriteContent(fileName string, content string) {
 	file, err := os.OpenFile(fileName, os.O_CREATE, 0755)
 	if err != nil {
 		log.Println(err)
@@ -296,6 +296,17 @@ func Write(fileName string, content string) {
 	_, err = file.WriteString(content)
 	if err != nil {
 		log.Println(err)
+	}
+}
+
+func Write(fileName string, content string) {
+	WriteFile(fileName, content)
+}
+
+func WriteFile(fileName string, content string) {
+	err := os.WriteFile(fileName, []byte(content), 0755)
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -405,7 +416,11 @@ func ModContent(path string, regStr string, isAll bool, value string) {
 
 func Modify(path string, regStr string, isAll bool, valueFunc func(matchStr string) string) {
 	content := Read(path)
-	lines := ReadByLine(path)
+	lineBreak := "\n"
+	if strings.Contains(content, "\r\n") {
+		lineBreak = "\r\n"
+	}
+	lines := strings.Split(content, lineBreak)
 	regex := regexp.MustCompile(regStr)
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
@@ -418,10 +433,10 @@ func Modify(path string, regStr string, isAll bool, valueFunc func(matchStr stri
 			continue
 		}
 		newLine := strings.Replace(line, parts[1], valueFunc(parts[1]), 1)
-		content = strings.Replace(content, line, newLine, 1)
+		lines[i] = newLine
 		if !isAll {
 			break
 		}
 	}
-	Write(path, content)
+	Write(path, strings.Join(lines, lineBreak))
 }
