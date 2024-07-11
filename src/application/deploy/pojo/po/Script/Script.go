@@ -67,7 +67,7 @@ func GetListByDir(appletDir string) []*Script {
 		yamlConfig := filepath.Join(assetsDir, yamlName)
 		scriptConfig := filepath.Join(scriptDir, projectName, yamlName)
 		scriptPath := filepath.Join(scriptDir, projectName, scriptName)
-		scriptPath = strings.Replace(scriptPath, string(filepath.Separator), "/", -1)
+		distPath = strings.Replace(distPath, string(filepath.Separator), "/", -1)
 
 		lstScript[i] = Of(
 			goName, goPath, yamlConfig, scriptName, scriptPath,
