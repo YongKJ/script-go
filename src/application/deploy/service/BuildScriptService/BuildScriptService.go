@@ -1,9 +1,12 @@
-package service
+package BuildScriptService
 
 import (
 	"script-go/src/application/deploy/pojo/dto/BuildConfig"
 	"script-go/src/application/deploy/pojo/po/Script"
+	"script-go/src/application/pojo/dto/Log"
+	"script-go/src/application/util/FileUtil"
 	"script-go/src/application/util/GenUtil"
+	"script-go/src/application/util/LogUtil"
 )
 
 type BuildScriptService struct {
@@ -36,7 +39,7 @@ func (b *BuildScriptService) apply() {
 	}
 	GenUtil.Println()
 
-	lstOS := BuildConfig.GetMapOSKeys(b.buildConfig.MapOS())
+	lstOS := []string{"windows", "linux", "android", "darwin", "ios"}
 	for i, os := range lstOS {
 		GenUtil.Println(GenUtil.IntToString(i+1) + ". " + os)
 	}
@@ -54,7 +57,7 @@ func (b *BuildScriptService) apply() {
 	GenUtil.Print("Please enter one number corresponding to the GOARCH: ")
 	archNums := GenUtil.ReadParams()
 	if len(archNums) > 0 {
-		b.arch = lstOS[GenUtil.StrToInt(archNums[0])-1]
+		b.arch = lstArch[GenUtil.StrToInt(archNums[0])-1]
 	}
 	GenUtil.Println()
 
@@ -75,14 +78,48 @@ func (b *BuildScriptService) apply() {
 		if 0 <= index && index < len(b.scripts) {
 			b.build(b.scripts[index])
 		}
-		if index == len(b.scripts) {
-
-		}
 	}
 }
 
 func (b *BuildScriptService) build(script *Script.Script) {
+	b.changeBuildConfig(script, true)
+	b.changeCrossBuild(script, true)
 
+	//bin, args := PromptUtil.PackageGoScript(b.buildConfig.CrossBuildPath())
+	//RemoteUtil.ChangeWorkFolder(b.buildConfig.SrcPath())
+	//RemoteUtil.ExecLocalCmdByPty(bin, args...)
+	LogUtil.Logger(Log.Of("BuildScriptService", "build", "script", script))
+
+	b.changeCrossBuild(script, false)
+	b.changeBuildConfig(script, false)
+}
+
+func (b *BuildScriptService) changeBuildConfig(script *Script.Script, isBefore bool) {
+	scriptRun := script.ScriptRun()
+	scriptImport := script.ScriptImport()
+	if !isBefore {
+		scriptRun = b.buildConfig.ScriptRunOriginal()
+		scriptImport = b.buildConfig.PackageImportOriginal()
+	}
+	FileUtil.ModContent(b.buildConfig.AppPath(), b.buildConfig.ScriptRunPattern(), false, scriptRun)
+	FileUtil.ModContent(b.buildConfig.AppPath(), b.buildConfig.PackageImportPattern(), false, scriptImport)
+}
+
+func (b *BuildScriptService) changeCrossBuild(script *Script.Script, isBefore bool) {
+	os := b.os
+	cgo := b.cgo
+	arch := b.arch
+	distPath := script.DistPath()
+	if !isBefore {
+		os = b.buildConfig.OsOriginal()
+		cgo = b.buildConfig.CgoOriginal()
+		arch = b.buildConfig.ArchOriginal()
+		distPath = b.buildConfig.DistOriginal()
+	}
+	FileUtil.ModContent(b.buildConfig.CrossBuildPath(), b.buildConfig.OsPattern(), false, os)
+	FileUtil.ModContent(b.buildConfig.CrossBuildPath(), b.buildConfig.ArchPattern(), false, arch)
+	FileUtil.ModContent(b.buildConfig.CrossBuildPath(), b.buildConfig.DistPattern(), false, distPath)
+	FileUtil.ModContent(b.buildConfig.CrossBuildPath(), b.buildConfig.CgoPattern(), false, GenUtil.IntToString(cgo))
 }
 
 func Run() {

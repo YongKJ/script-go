@@ -1,5 +1,12 @@
 package PromptUtil
 
+func PackageGoScript(crossBuildPath string) (string, []string) {
+	return "busybox", []string{
+		"bash",
+		crossBuildPath,
+	}
+}
+
 func CaptureVideoScreenshot(video string, picture string) (string, []string) {
 	return "ffmpeg", []string{
 		"-i",

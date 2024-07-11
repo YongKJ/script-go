@@ -44,22 +44,16 @@ func AppDir() string {
 	if len(baseDir) > 0 {
 		return baseDir
 	}
-	appDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+
+	rootDir, err := find.Repo()
 	if err != nil {
+		appDir, _ := filepath.Abs(rootDir.Path)
+		baseDir = appDir
 		log.Println(err)
-		return ""
-	}
-	repoDir := filepath.Join(appDir, "repo")
-	if !Exist(repoDir) {
-		rootDir, err := find.Repo()
-		if err != nil {
-			log.Println(err)
-			return ""
-		}
-		baseDir = rootDir.Path
 		return baseDir
 	}
-	baseDir = appDir
+
+	baseDir = rootDir.Path
 	return baseDir
 }
 
