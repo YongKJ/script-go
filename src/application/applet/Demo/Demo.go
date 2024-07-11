@@ -1,7 +1,9 @@
 package Demo
 
 import (
+	"bufio"
 	"encoding/base64"
+	"fmt"
 	lzstring "github.com/daku10/go-lz-string"
 	"github.com/jinzhu/copier"
 	"log"
@@ -168,9 +170,21 @@ func (d *Demo) test9() {
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test9", "cpyDemoTest", cpyDemoTest))
 }
 
+func (d *Demo) test10() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("请输入内容: ")
+	text, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Println("读取控制台输入失败:", err)
+		return
+	}
+	fmt.Println("您输入的内容是:", text)
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test9()
+	demo.test10()
+	//demo.test9()
 	//demo.test8()
 	//demo.test7()
 	//demo.test6()
