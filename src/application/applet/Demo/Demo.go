@@ -15,6 +15,7 @@ import (
 	"script-go/src/application/deploy/pojo/po/Script"
 	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/DataUtil"
+	"script-go/src/application/util/FileUtil"
 	"script-go/src/application/util/GenUtil"
 	"script-go/src/application/util/LogUtil"
 	"strings"
@@ -193,9 +194,15 @@ func (d *Demo) test11() {
 	fmt.Println("您输入的内容是:", params)
 }
 
+func (d *Demo) test12() {
+	appDir := FileUtil.AppDir()
+	LogUtil.LoggerLine(Log.Of("Demo", "test12", "appDir", appDir))
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test11()
+	demo.test12()
+	//demo.test11()
 	//demo.test10()
 	//demo.test9()
 	//demo.test8()
