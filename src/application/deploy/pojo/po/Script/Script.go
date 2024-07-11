@@ -18,14 +18,15 @@ type Script struct {
 	scriptConfig string
 	scriptRun    string
 	scriptImport string
+	distPath     string
 }
 
-func newScript(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string) *Script {
-	return &Script{goName: goName, goPath: goPath, yamlConfig: yamlConfig, scriptName: scriptName, scriptPath: scriptPath, scriptConfig: scriptConfig, scriptRun: scriptRun, scriptImport: scriptImport}
+func newScript(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, distPath string) *Script {
+	return &Script{goName: goName, goPath: goPath, yamlConfig: yamlConfig, scriptName: scriptName, scriptPath: scriptPath, scriptConfig: scriptConfig, scriptRun: scriptRun, scriptImport: scriptImport, distPath: distPath}
 }
 
-func Of(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string) *Script {
-	return newScript(goName, goPath, yamlConfig, scriptName, scriptPath, scriptConfig, scriptRun, scriptImport)
+func Of(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, distPath string) *Script {
+	return newScript(goName, goPath, yamlConfig, scriptName, scriptPath, scriptConfig, scriptRun, scriptImport, distPath)
 }
 
 func Gets() []*Script {
@@ -40,6 +41,7 @@ func GetListByDir(appletDir string) []*Script {
 	}
 	assetsDir := FileUtil.GetAbsPath("src", "assets")
 	scriptDir := FileUtil.GetAbsPath("script")
+	distDir := FileUtil.GetAbsPath("dist")
 	lstFile := FileUtil.List(appletDir)
 
 	lstScript := make([]*Script, len(lstFile))
@@ -61,13 +63,14 @@ func GetListByDir(appletDir string) []*Script {
 		scriptImport := getImportPath(goPath)
 		yamlName := GenUtil.ToLine(name) + ".yaml"
 		scriptName := GenUtil.ToLine(name) + suffix
+		distPath := filepath.Join(distDir, scriptName)
 		yamlConfig := filepath.Join(assetsDir, yamlName)
 		scriptConfig := filepath.Join(scriptDir, projectName, yamlName)
 		scriptPath := filepath.Join(scriptDir, projectName, scriptName)
 
 		lstScript[i] = Of(
-			goName, goPath, yamlConfig, scriptName,
-			scriptPath, scriptConfig, scriptRun, scriptImport,
+			goName, goPath, yamlConfig, scriptName, scriptPath,
+			scriptConfig, scriptRun, scriptImport, distPath,
 		)
 	}
 	return lstScript
@@ -175,4 +178,12 @@ func (s *Script) ScriptRun() string {
 
 func (s *Script) SetScriptRun(scriptRun string) {
 	s.scriptRun = scriptRun
+}
+
+func (s *Script) DistPath() string {
+	return s.distPath
+}
+
+func (s *Script) SetDistPath(distPath string) {
+	s.distPath = distPath
 }
