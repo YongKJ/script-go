@@ -69,7 +69,16 @@ func GetConfig(config string) map[string]any {
 }
 
 func GetConfigPath(config string) string {
-	path := FileUtil.GetAbsPath(config)
+	execPath, err := os.Executable()
+	if err != nil {
+		log.Println(err)
+	}
+	execDir := filepath.Dir(execPath)
+	path := filepath.Join(execDir, config)
+	if FileUtil.Exist(path) {
+		return path
+	}
+	path = FileUtil.GetAbsPath(config)
 	if FileUtil.Exist(path) {
 		return path
 	}

@@ -10,6 +10,7 @@ void test() {
 import "C"
 import (
 	"script-go/src/application/pojo/dto/Log"
+	"script-go/src/application/util/FileUtil"
 	"script-go/src/application/util/GenUtil"
 	"script-go/src/application/util/LogUtil"
 )
@@ -27,6 +28,7 @@ func newCHello() *CHello {
 func (c *CHello) test() {
 	C.test()
 	LogUtil.LoggerLine(Log.Of("CHello", "test", "c.msg", c.msg))
+	LogUtil.LoggerLine(Log.Of("CHello", "test", "FileUtil.AppDir()", FileUtil.AppDir()))
 }
 
 func Run() {
