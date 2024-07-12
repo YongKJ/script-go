@@ -88,7 +88,7 @@ func (b *BuildScriptService) build(script *Script.Script) {
 
 	bin, args := PromptUtil.PackageGoScript(b.buildConfig.CrossBuildPath())
 	RemoteUtil.ChangeWorkFolder(b.buildConfig.SrcPath())
-	RemoteUtil.ExecLocalCmdByPty(bin, args...)
+	RemoteUtil.ExecLocalCmd(bin, args...)
 
 	b.updateScript(script)
 	b.changeCrossBuild(script, false)
