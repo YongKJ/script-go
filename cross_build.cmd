@@ -5,11 +5,12 @@ SET GOOS=windows
 SET CGO_ENABLED=1
 
 rm -rf ./dist
+cd ./src
 
 :: SET CC=D:\Software\scoop\apps\gcc\current\bin\gcc.exe
 :: SET CXX=D:\Software\scoop\apps\gcc\current\bin\g++.exe
 
-go build -o ./dist/script-go.exe
+go build -o ../dist/script-go.exe
 
 :: linux build
 

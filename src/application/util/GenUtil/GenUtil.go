@@ -81,8 +81,8 @@ func GetYaml() string {
 	if err != nil {
 		log.Println(err)
 	}
-	if strings.HasSuffix(execPath, "script_go.exe") ||
-		strings.HasSuffix(execPath, "script_go_test.exe") {
+	if strings.Contains(execPath, "script_go") ||
+		strings.Contains(execPath, "script_go_test") {
 		return GetYamlByContent(execPath)
 	}
 	index := strings.LastIndex(execPath, string(filepath.Separator))
@@ -91,7 +91,7 @@ func GetYaml() string {
 
 func GetYamlByContent(execPath string) string {
 	appName := "Application.go"
-	if strings.HasSuffix(execPath, "script_go_test.exe") {
+	if strings.Contains(execPath, "script_go_test") {
 		appName = "ApplicationTest.go"
 	}
 	appPath := FileUtil.GetAbsPath("src", "application", appName)

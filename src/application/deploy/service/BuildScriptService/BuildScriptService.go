@@ -3,10 +3,10 @@ package BuildScriptService
 import (
 	"script-go/src/application/deploy/pojo/dto/BuildConfig"
 	"script-go/src/application/deploy/pojo/po/Script"
-	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/FileUtil"
 	"script-go/src/application/util/GenUtil"
-	"script-go/src/application/util/LogUtil"
+	"script-go/src/application/util/PromptUtil"
+	"script-go/src/application/util/RemoteUtil"
 )
 
 type BuildScriptService struct {
@@ -85,13 +85,35 @@ func (b *BuildScriptService) build(script *Script.Script) {
 	b.changeBuildConfig(script, true)
 	b.changeCrossBuild(script, true)
 
-	//bin, args := PromptUtil.PackageGoScript(b.buildConfig.CrossBuildPath())
-	//RemoteUtil.ChangeWorkFolder(b.buildConfig.SrcPath())
-	//RemoteUtil.ExecLocalCmdByPty(bin, args...)
-	LogUtil.Logger(Log.Of("BuildScriptService", "build", "isBefore", true))
+	bin, args := PromptUtil.PackageGoScript(b.buildConfig.CrossBuildPath())
+	RemoteUtil.ChangeWorkFolder(b.buildConfig.SrcPath())
+	RemoteUtil.ExecLocalCmdByPty(bin, args...)
 
+	b.updateScript(script)
 	b.changeCrossBuild(script, false)
 	b.changeBuildConfig(script, false)
+}
+
+func (b *BuildScriptService) updateScript(script *Script.Script) {
+	if !FileUtil.Exist(script.ScriptProject()) {
+		FileUtil.Mkdir(script.ScriptProject())
+	}
+	if FileUtil.Exist(script.ScriptPath()) &&
+		FileUtil.Exist(script.DistPath()) &&
+		script.GoName() != "BuildScriptService.go" {
+		FileUtil.Delete(script.ScriptPath())
+	}
+	if FileUtil.Exist(script.ScriptConfig()) &&
+		FileUtil.Exist(script.YamlConfig()) {
+		FileUtil.Delete(script.ScriptConfig())
+	}
+	if FileUtil.Exist(script.DistPath()) &&
+		script.GoName() != "BuildScriptService.go" {
+		FileUtil.Copy(script.DistPath(), script.ScriptPath())
+	}
+	if FileUtil.Exist(script.YamlConfig()) {
+		FileUtil.Copy(script.YamlConfig(), script.ScriptConfig())
+	}
 }
 
 func (b *BuildScriptService) changeBuildConfig(script *Script.Script, isBefore bool) {

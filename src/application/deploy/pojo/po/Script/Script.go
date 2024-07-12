@@ -10,23 +10,24 @@ import (
 )
 
 type Script struct {
-	goName       string
-	goPath       string
-	yamlConfig   string
-	scriptName   string
-	scriptPath   string
-	scriptConfig string
-	scriptRun    string
-	scriptImport string
-	distPath     string
+	goName        string
+	goPath        string
+	yamlConfig    string
+	scriptName    string
+	scriptPath    string
+	scriptConfig  string
+	scriptRun     string
+	scriptImport  string
+	scriptProject string
+	distPath      string
 }
 
-func newScript(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, distPath string) *Script {
-	return &Script{goName: goName, goPath: goPath, yamlConfig: yamlConfig, scriptName: scriptName, scriptPath: scriptPath, scriptConfig: scriptConfig, scriptRun: scriptRun, scriptImport: scriptImport, distPath: distPath}
+func newScript(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, scriptProject string, distPath string) *Script {
+	return &Script{goName: goName, goPath: goPath, yamlConfig: yamlConfig, scriptName: scriptName, scriptPath: scriptPath, scriptConfig: scriptConfig, scriptRun: scriptRun, scriptImport: scriptImport, scriptProject: scriptProject, distPath: distPath}
 }
 
-func Of(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, distPath string) *Script {
-	return newScript(goName, goPath, yamlConfig, scriptName, scriptPath, scriptConfig, scriptRun, scriptImport, distPath)
+func Of(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, scriptProject string, distPath string) *Script {
+	return newScript(goName, goPath, yamlConfig, scriptName, scriptPath, scriptConfig, scriptRun, scriptImport, scriptProject, distPath)
 }
 
 func Gets() []*Script {
@@ -65,13 +66,14 @@ func GetListByDir(appletDir string) []*Script {
 		scriptName := GenUtil.ToLine(name) + suffix
 		distPath := filepath.Join(distDir, scriptName)
 		yamlConfig := filepath.Join(assetsDir, yamlName)
+		scriptProject := filepath.Join(scriptDir, projectName)
 		scriptConfig := filepath.Join(scriptDir, projectName, yamlName)
 		scriptPath := filepath.Join(scriptDir, projectName, scriptName)
 		distPath = strings.Replace(distPath, string(filepath.Separator), "/", -1)
 
 		lstScript[i] = Of(
 			goName, goPath, yamlConfig, scriptName, scriptPath,
-			scriptConfig, scriptRun, scriptImport, distPath,
+			scriptConfig, scriptRun, scriptImport, scriptProject, distPath,
 		)
 	}
 	return lstScript
@@ -179,6 +181,14 @@ func (s *Script) ScriptRun() string {
 
 func (s *Script) SetScriptRun(scriptRun string) {
 	s.scriptRun = scriptRun
+}
+
+func (s *Script) ScriptProject() string {
+	return s.scriptProject
+}
+
+func (s *Script) SetScriptProject(scriptProject string) {
+	s.scriptProject = scriptProject
 }
 
 func (s *Script) DistPath() string {

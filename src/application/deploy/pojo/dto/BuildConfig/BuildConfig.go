@@ -51,7 +51,7 @@ func Get() *BuildConfig {
 		".+ENABLED=(.+)", 1,
 		".+OS=(.+)", "windows",
 		".+ARCH=(.+)", "amd64",
-		".+-o\\s(.+)", "./dist/script-go.exe",
+		".+-o\\s(.+)", "../dist/script-go.exe",
 		"\\s+(\\S+)\\.Run\\(\\)", "Demo",
 		".+\"(.+)\"", "script-go/src/application/applet/Demo",
 	)
