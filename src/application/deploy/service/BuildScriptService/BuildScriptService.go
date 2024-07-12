@@ -76,6 +76,7 @@ func (b *BuildScriptService) apply() {
 	for _, scriptNum := range scriptNums {
 		index := GenUtil.StrToInt(scriptNum) - 1
 		if 0 <= index && index < len(b.scripts) {
+			Script.SetDistPath(b.scripts[index], b.os, b.arch)
 			b.build(b.scripts[index])
 		}
 	}

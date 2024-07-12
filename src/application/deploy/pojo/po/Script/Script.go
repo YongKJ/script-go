@@ -2,7 +2,6 @@ package Script
 
 import (
 	"path/filepath"
-	"runtime"
 	"script-go/src/application/util/DataUtil"
 	"script-go/src/application/util/FileUtil"
 	"script-go/src/application/util/GenUtil"
@@ -36,6 +35,21 @@ func Gets() []*Script {
 	return append(lstScript, GetListByDir(path)...)
 }
 
+func SetDistPath(script *Script, os string, arch string) {
+	distPath := script.DistPath()
+	scriptPath := script.ScriptPath()
+	if !(os == "windows" && arch == "amd64") {
+		distPath = strings.Join([]string{distPath, os, arch}, "-")
+		scriptPath = strings.Join([]string{scriptPath, os, arch}, "-")
+	}
+	if os == "windows" {
+		distPath = distPath + ".exe"
+		scriptPath = scriptPath + ".exe"
+	}
+	script.SetDistPath(distPath)
+	script.SetScriptPath(scriptPath)
+}
+
 func GetListByDir(appletDir string) []*Script {
 	if len(appletDir) == 0 {
 		appletDir = FileUtil.GetAbsPath("src", "application", "applet")
@@ -53,17 +67,13 @@ func GetListByDir(appletDir string) []*Script {
 		}
 		index := strings.LastIndex(goPath, string(filepath.Separator))
 		goName := goPath[index+1:]
-
-		suffix := ""
 		name, _ := strings.CutSuffix(goName, ".go")
-		if runtime.GOOS == "windows" {
-			suffix = ".exe"
-		}
+
 		scriptRun := name
+		scriptName := GenUtil.ToLine(name)
 		projectName := GenUtil.ToLine(name)
 		scriptImport := getImportPath(goPath)
 		yamlName := GenUtil.ToLine(name) + ".yaml"
-		scriptName := GenUtil.ToLine(name) + suffix
 		distPath := filepath.Join(distDir, scriptName)
 		yamlConfig := filepath.Join(assetsDir, yamlName)
 		scriptProject := filepath.Join(scriptDir, projectName)
