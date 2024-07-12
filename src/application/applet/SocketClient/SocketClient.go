@@ -221,7 +221,10 @@ func (s *SocketClient) Disconnect() {
 }
 
 func (s *SocketClient) EmitMessage(websocketMessage string) {
-	s.conn.WriteMessage(websocket.TextMessage, []byte(websocketMessage))
+	err := s.conn.WriteMessage(websocket.TextMessage, []byte(websocketMessage))
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (s *SocketClient) Emit(event string, data any) {
