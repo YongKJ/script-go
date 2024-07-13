@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"reflect"
+	"script-go/src/application/util/GenUtil"
 	"strings"
 	"time"
 )
@@ -110,20 +112,28 @@ func (s *SocketClient) onClose() {
 	}
 }
 
-func (s *SocketClient) isNumber(obj any) bool {
-	return false
+func (s *SocketClient) isFloat64(obj any) bool {
+	return reflect.TypeOf(obj).Kind() == reflect.Float64
+}
+
+func (s *SocketClient) isInt(obj any) bool {
+	return reflect.TypeOf(obj).Kind() == reflect.Int
 }
 
 func (s *SocketClient) isString(obj any) bool {
-	return false
+	return reflect.TypeOf(obj).Kind() == reflect.String
 }
 
 func (s *SocketClient) isBoolean(obj any) bool {
-	return false
+	return reflect.TypeOf(obj).Kind() == reflect.Bool
 }
 
 func (s *SocketClient) isJSON(obj any) bool {
-	return false
+	return reflect.TypeOf(obj).Kind() == reflect.Map
+}
+
+func (s *SocketClient) isNil(obj any) bool {
+	return reflect.ValueOf(obj).IsNil()
 }
 
 func (s *SocketClient) _msg(event string, websocketMessageType int, dataMessage string) string {
@@ -131,11 +141,47 @@ func (s *SocketClient) _msg(event string, websocketMessageType int, dataMessage 
 }
 
 func (s *SocketClient) encodeMessage(event string, data any) string {
-	return ""
+	m := ""
+	t := 0
+	if s.isInt(data) {
+		t = websocketIntMessageType
+		m = GenUtil.IntToString(data.(int))
+	} else if s.isFloat64(data) {
+		t = websocketBoolMessageType
+		m = GenUtil.Float64ToString(data.(float64))
+	} else if s.isBoolean(data) {
+		t = websocketBoolMessageType
+		m = GenUtil.BoolToString(data.(bool))
+	} else if s.isString(data) {
+		t = websocketStringMessageType
+		m = data.(string)
+	} else if s.isJSON(data) {
+		t = websocketJSONMessageType
+		m = GenUtil.MapToString(data.(map[string]any))
+	} else if !s.isNil(data) {
+		log.Println("unsupported type of input argument passed, try to not include this argument to the 'Emit'")
+	}
+	return s._msg(event, t, m)
 }
 
 func (s *SocketClient) decodeMessage(event string, websocketMessage string) any {
-	return ""
+	skipLen := websocketMessagePrefixLen + websocketMessageSeparatorLen + len(event) + 2
+	if len(websocketMessage) < skipLen+1 {
+		return nil
+	}
+	websocketMessageType := GenUtil.StrToInt(websocketMessage[skipLen-2:])
+	theMessage := websocketMessage[skipLen:]
+	if websocketMessageType == websocketIntMessageType {
+		return GenUtil.StrToInt(theMessage)
+	} else if websocketMessageType == websocketBoolMessageType {
+		return GenUtil.StrToBoolean(theMessage)
+	} else if websocketMessageType == websocketStringMessageType {
+		return theMessage
+	} else if websocketMessageType == websocketJSONMessageType {
+		return GenUtil.StrToMap(theMessage)
+	} else {
+		return nil
+	}
 }
 
 func (s *SocketClient) getWebsocketCustomEvent(websocketMessage string) string {

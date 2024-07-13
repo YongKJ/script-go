@@ -308,6 +308,15 @@ func ArrayToStr(lstStr []string, separator string) string {
 	return tempStr[0 : len(tempStr)-1]
 }
 
+func StrToJsonArray(jsonStr string) []any {
+	var lstData []any
+	err := json.Unmarshal([]byte(jsonStr), &lstData)
+	if err != nil {
+		LogUtil.LoggerLine(Log.Of("GenUtil", "StrToJsonArray", "err", err))
+	}
+	return lstData
+}
+
 func StrToMap(jsonStr string) map[string]any {
 	var mapData map[string]any
 	err := json.Unmarshal([]byte(jsonStr), &mapData)
@@ -467,6 +476,19 @@ func StrToFloat64(numStr string) float64 {
 		log.Println(err)
 	}
 	return num
+}
+
+func BoolToString(boolData bool) string {
+	return strconv.FormatBool(boolData)
+}
+
+func MapToString(mapData map[string]any) string {
+	jsonStr, err := json.Marshal(mapData)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return string(jsonStr)
 }
 
 func IntToString(number int) string {
