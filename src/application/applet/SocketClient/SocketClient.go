@@ -12,6 +12,10 @@ import (
 )
 
 const (
+	writeWait                  = 10 * time.Second
+	pongWait                   = 60 * time.Second
+	pingPeriod                 = (pongWait * 9) / 10
+	maxMessageSize             = 512
 	websocketStringMessageType = 0
 	websocketIntMessageType    = 1
 	websocketBoolMessageType   = 2
@@ -23,6 +27,7 @@ const (
 
 var (
 	done                            = make(chan struct{})
+	send                            = make(chan []byte, 256)
 	interrupt                       = make(chan os.Signal, 1)
 	websocketMessageSeparatorLen    = len(websocketMessageSeparator)
 	websocketMessagePrefixAndSepIdx = websocketMessagePrefixLen + websocketMessageSeparatorLen - 1
@@ -65,25 +70,94 @@ func NewSocketClient(endpoint string) *SocketClient {
 		disconnectListeners:    disconnectListeners,
 		nativeMessageListeners: nativeMessageListeners,
 	}
-	client.initData(err)
+	client.initData()
 	return client
 }
 
-func (s *SocketClient) initData(err error) {
-	s.onOpen(err)
+func (s *SocketClient) initData() {
+	s.onOpen()
 	s.onMessage()
 	s.onClose()
 }
 
-func (s *SocketClient) onOpen(err error) {
+func (s *SocketClient) onOpen() {
+	err := s.conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err != nil {
+		log.Println(err)
 		return
 	}
-	s.fireConnect()
+	if err = s.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+		return
+	}
 	s.isReady = true
+	s.fireConnect()
+	s.writePump()
+}
+
+func (s *SocketClient) writePump() {
+	ticker := time.NewTicker(pingPeriod)
+	go func() {
+		defer ticker.Stop()
+		for {
+			select {
+			case message, ok := <-send:
+				err := s.conn.SetWriteDeadline(time.Now().Add(writeWait))
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				if !ok {
+					err = s.conn.WriteMessage(websocket.CloseMessage, []byte{})
+					if err != nil {
+						log.Println(err)
+						return
+					}
+					return
+				}
+
+				w, err := s.conn.NextWriter(websocket.TextMessage)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				_, err = w.Write(message)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				if err = w.Close(); err != nil {
+					return
+				}
+			case <-ticker.C:
+				err := s.conn.SetWriteDeadline(time.Now().Add(writeWait))
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				if err = s.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
+			}
+		}
+	}()
 }
 
 func (s *SocketClient) onMessage() {
+	s.conn.SetReadLimit(maxMessageSize)
+	err := s.conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	s.conn.SetPongHandler(func(string) error {
+		err = s.conn.SetReadDeadline(time.Now().Add(pongWait))
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		return nil
+	})
 	go func() {
 		defer close(done)
 		for {
