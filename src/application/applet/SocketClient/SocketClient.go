@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
+	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/GenUtil"
+	"script-go/src/application/util/LogUtil"
 	"strings"
 	"time"
 )
@@ -43,8 +45,9 @@ type (
 )
 
 type SocketClient struct {
-	conn                   *websocket.Conn
 	isReady                bool
+	endpoint               string
+	conn                   *websocket.Conn
 	connectListeners       []onConnectFunc
 	disconnectListeners    []onWebsocketDisconnectFunc
 	nativeMessageListeners []onWebsocketNativeMessageFunc
@@ -52,46 +55,43 @@ type SocketClient struct {
 }
 
 func NewSocketClient(endpoint string) *SocketClient {
-	dialer := websocket.Dialer{
-		HandshakeTimeout: 10 * time.Second,
+	return &SocketClient{
+		endpoint: endpoint,
 	}
-	conn, _, err := dialer.Dial(endpoint, nil)
-	if err != nil {
-		log.Println(err)
-	}
-	var connectListeners []onConnectFunc
-	var messageListeners map[string][]onMessageFunc
-	var disconnectListeners []onWebsocketDisconnectFunc
-	var nativeMessageListeners []onWebsocketNativeMessageFunc
-	client := &SocketClient{
-		conn:                   conn,
-		connectListeners:       connectListeners,
-		messageListeners:       messageListeners,
-		disconnectListeners:    disconnectListeners,
-		nativeMessageListeners: nativeMessageListeners,
-	}
-	client.initData()
-	return client
 }
 
-func (s *SocketClient) initData() {
+func (s *SocketClient) InitClient(onClose bool) {
+	if onClose {
+		var connectListeners []onConnectFunc
+		var messageListeners map[string][]onMessageFunc
+		var disconnectListeners []onWebsocketDisconnectFunc
+		var nativeMessageListeners []onWebsocketNativeMessageFunc
+		s.nativeMessageListeners = nativeMessageListeners
+		s.disconnectListeners = disconnectListeners
+		s.messageListeners = messageListeners
+		s.connectListeners = connectListeners
+	}
+
 	s.onOpen()
 	s.onMessage()
-	s.onClose()
+	if onClose {
+		s.onClose()
+	}
 }
 
 func (s *SocketClient) onOpen() {
-	err := s.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	dialer := websocket.Dialer{
+		HandshakeTimeout: 10 * time.Second,
+	}
+	conn, _, err := dialer.Dial(s.endpoint, nil)
 	if err != nil {
 		log.Println(err)
-		return
 	}
-	if err = s.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-		return
-	}
-	s.isReady = true
-	s.fireConnect()
+
+	s.conn = conn
 	s.writePump()
+	s.fireConnect()
+	s.isReady = true
 }
 
 func (s *SocketClient) writePump() {
@@ -132,10 +132,14 @@ func (s *SocketClient) writePump() {
 			case <-ticker.C:
 				err := s.conn.SetWriteDeadline(time.Now().Add(writeWait))
 				if err != nil {
+					interrupt <- os.Interrupt
 					log.Println(err)
 					return
 				}
+				LogUtil.LoggerLine(Log.Of("SocketClient", "writePump", "heartbeat", "ping"))
 				if err = s.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					interrupt <- os.Interrupt
+					log.Println(err)
 					return
 				}
 			}
@@ -156,15 +160,16 @@ func (s *SocketClient) onMessage() {
 			log.Println(err)
 			return err
 		}
+		LogUtil.LoggerLine(Log.Of("SocketClient", "SetPongHandler", "heartbeat", "pong"))
 		return nil
 	})
 	go func() {
-		defer close(done)
 		for {
 			_, message, err := s.conn.ReadMessage()
 			if err != nil {
 				log.Println("read:", err)
-				return
+				interrupt <- os.Interrupt
+				break
 			}
 			log.Printf("recv: %s", message)
 			s.messageReceivedFromConn(string(message))
@@ -181,6 +186,8 @@ func (s *SocketClient) onClose() {
 			return
 		case <-interrupt:
 			log.Println("interrupt")
+			s.fireDisconnect()
+			s.InitClient(false)
 			return
 		}
 	}
@@ -211,7 +218,7 @@ func (s *SocketClient) isNil(obj any) bool {
 }
 
 func (s *SocketClient) _msg(event string, websocketMessageType int, dataMessage string) string {
-	return websocketMessagePrefix + event + websocketMessageSeparator + string(rune(websocketMessageType)) + websocketMessageSeparator + dataMessage
+	return websocketMessagePrefix + event + websocketMessageSeparator + GenUtil.IntToString(websocketMessageType) + websocketMessageSeparator + dataMessage
 }
 
 func (s *SocketClient) encodeMessage(event string, data any) string {
@@ -343,8 +350,23 @@ func (s *SocketClient) Disconnect() {
 func (s *SocketClient) EmitMessage(websocketMessage string) {
 	err := s.conn.WriteMessage(websocket.TextMessage, []byte(websocketMessage))
 	if err != nil {
+		interrupt <- os.Interrupt
+		s.delayEmitMessage(websocketMessage)
 		log.Println(err)
 	}
+}
+
+func (s *SocketClient) delayEmitMessage(websocketMessage string) {
+	timer := time.NewTimer(3 * time.Second)
+	go func() {
+		defer timer.Stop()
+
+		select {
+		case <-timer.C:
+			s.EmitMessage(websocketMessage)
+			return
+		}
+	}()
 }
 
 func (s *SocketClient) Emit(event string, data any) {
