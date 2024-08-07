@@ -26,7 +26,7 @@ func Of(className string, methodName string, paramName string, value any) *Log {
 
 func JsonArrayToObjects(jsonArrayStr string) []*Log {
 	var lstData []*Log
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*Log)
+	return *(DataUtil.JsonArrayToObjects(jsonArrayStr, &lstData).(*[]*Log))
 }
 
 func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
@@ -62,7 +62,8 @@ func MapsToJsonArray(arrayData []map[string]any) string {
 }
 
 func MapsToObjects(arrayData []map[string]any) []*Log {
-	return DataUtil.MapsToObjects(arrayData, &Log{}).([]*Log)
+	var lstData []*Log
+	return *(DataUtil.MapsToObjects(arrayData, &lstData).(*[]*Log))
 }
 
 func MapToJson(mapData map[string]any) string {

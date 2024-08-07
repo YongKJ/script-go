@@ -107,7 +107,7 @@ func getScript(folder string) string {
 
 func JsonArrayToObjects(jsonArrayStr string) []*Script {
 	var lstData []*Script
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*Script)
+	return *(DataUtil.JsonArrayToObjects(jsonArrayStr, &lstData).(*[]*Script))
 }
 
 func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
@@ -143,7 +143,8 @@ func MapsToJsonArray(arrayData []map[string]any) string {
 }
 
 func MapsToObjects(arrayData []map[string]any) []*Script {
-	return DataUtil.MapsToObjects(arrayData, &Script{}).([]*Script)
+	var lstData []*Script
+	return *(DataUtil.MapsToObjects(arrayData, &lstData).(*[]*Script))
 }
 
 func MapToJson(mapData map[string]any) string {

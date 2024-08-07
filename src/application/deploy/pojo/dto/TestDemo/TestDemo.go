@@ -17,7 +17,7 @@ func Of(id int, msg string) *TestDemo {
 
 func JsonArrayToObjects(jsonArrayStr string) []*TestDemo {
 	var lstData []*TestDemo
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*TestDemo)
+	return *(DataUtil.JsonArrayToObjects(jsonArrayStr, &lstData).(*[]*TestDemo))
 }
 
 func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
@@ -53,7 +53,8 @@ func MapsToJsonArray(arrayData []map[string]any) string {
 }
 
 func MapsToObjects(arrayData []map[string]any) []*TestDemo {
-	return DataUtil.MapsToObjects(arrayData, &TestDemo{}).([]*TestDemo)
+	var lstData []*TestDemo
+	return *(DataUtil.MapsToObjects(arrayData, &lstData).(*[]*TestDemo))
 }
 
 func MapToJson(mapData map[string]any) string {

@@ -9,11 +9,11 @@ import (
 
 func JsonArrayToMaps(jsonStr string) []map[string]any {
 	var arrayData []map[string]any
-	return JsonArrayToObjects(jsonStr, arrayData).([]map[string]any)
+	return *(JsonArrayToObjects(jsonStr, &arrayData).(*[]map[string]any))
 }
 
 func JsonArrayToObjects(jsonStr string, class any) any {
-	err := json.Unmarshal([]byte(jsonStr), &class)
+	err := json.Unmarshal([]byte(jsonStr), class)
 	if err != nil {
 		log.Println("[DateUtil] JsonArrayToObjects -> json.Unmarshal: ", err)
 	}
@@ -22,11 +22,7 @@ func JsonArrayToObjects(jsonStr string, class any) any {
 
 func JsonToMap(jsonStr string) map[string]any {
 	var mapData map[string]any
-	err := json.Unmarshal([]byte(jsonStr), &mapData)
-	if err != nil {
-		log.Println("[DateUtil] JsonToMap -> json.Unmarshal: ", err)
-	}
-	return mapData
+	return *(JsonToObject(jsonStr, &mapData).(*map[string]any))
 }
 
 func JsonToObject(jsonStr string, class any) any {
@@ -90,11 +86,6 @@ func MapToObject(mapData map[string]any, class any) any {
 }
 
 func ObjectsToArray[A ~[]E, E any](classes A) []map[string]any {
-	jsonStr := ObjectsToJsonArray(classes)
-	return JsonArrayToMaps(jsonStr)
-}
-
-func ObjectsToArrayOld[A ~[]E, E any](classes A) []map[string]any {
 	length := len(classes)
 	lstData := make([]map[string]any, length)
 	for i := 0; i < length; i++ {

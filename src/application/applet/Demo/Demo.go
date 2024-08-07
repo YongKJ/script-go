@@ -216,9 +216,33 @@ func (d *Demo) test13() {
 	close(send)
 }
 
+func (d *Demo) test14() {
+	lstData := make([]map[string]any, 2)
+	lstData[0] = map[string]any{
+		"id":  1,
+		"msg": "Hello world!",
+		"testDemo": map[string]any{
+			"id":  1,
+			"msg": "Hello world!",
+		},
+	}
+	lstData[1] = map[string]any{
+		"id":  1,
+		"msg": "Hello world!",
+		"testDemo": map[string]any{
+			"id":  1,
+			"msg": "Hello world!",
+		},
+	}
+
+	lstObjData := DemoTest.MapsToObjects(lstData)
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "lstObjData", lstObjData))
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test13()
+	demo.test14()
+	//demo.test13()
 	//demo.test12()
 	//demo.test11()
 	//demo.test10()

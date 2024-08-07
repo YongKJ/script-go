@@ -6,21 +6,22 @@ import (
 )
 
 type DemoTest struct {
-	Id  int    `json:"id"`
-	Msg string `json:"msg"`
+	Id       int                `json:"id"`
+	Msg      string             `json:"msg"`
+	TestDemo *TestDemo.TestDemo `json:"testDemo"`
 }
 
-func newDemoTest(id int, msg string) *DemoTest {
-	return &DemoTest{Id: id, Msg: msg}
+func newDemoTest(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
+	return &DemoTest{Id: id, Msg: msg, TestDemo: testDemo}
 }
 
 func Of(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
-	return newDemoTest(id, msg)
+	return newDemoTest(id, msg, testDemo)
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*DemoTest {
 	var lstData []*DemoTest
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*DemoTest)
+	return *(DataUtil.JsonArrayToObjects(jsonArrayStr, &lstData).(*[]*DemoTest))
 }
 
 func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
@@ -56,7 +57,8 @@ func MapsToJsonArray(arrayData []map[string]any) string {
 }
 
 func MapsToObjects(arrayData []map[string]any) []*DemoTest {
-	return DataUtil.MapsToObjects(arrayData, &DemoTest{}).([]*DemoTest)
+	var lstData []*DemoTest
+	return *(DataUtil.MapsToObjects(arrayData, &lstData).(*[]*DemoTest))
 }
 
 func MapToJson(mapData map[string]any) string {

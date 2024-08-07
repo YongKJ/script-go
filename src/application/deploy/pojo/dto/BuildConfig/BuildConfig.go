@@ -67,7 +67,7 @@ func GetMapOSKeys(mapData map[string][]string) []string {
 
 func JsonArrayToObjects(jsonArrayStr string) []*BuildConfig {
 	var lstData []*BuildConfig
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*BuildConfig)
+	return *(DataUtil.JsonArrayToObjects(jsonArrayStr, &lstData).(*[]*BuildConfig))
 }
 
 func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
@@ -103,7 +103,8 @@ func MapsToJsonArray(arrayData []map[string]any) string {
 }
 
 func MapsToObjects(arrayData []map[string]any) []*BuildConfig {
-	return DataUtil.MapsToObjects(arrayData, &BuildConfig{}).([]*BuildConfig)
+	var lstData []*BuildConfig
+	return *(DataUtil.MapsToObjects(arrayData, &lstData).(*[]*BuildConfig))
 }
 
 func MapToJson(mapData map[string]any) string {
