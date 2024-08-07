@@ -199,9 +199,27 @@ func (d *Demo) test12() {
 	LogUtil.LoggerLine(Log.Of("Demo", "test12", "appDir", appDir))
 }
 
+func (d *Demo) test13() {
+	send := make(chan string)
+	go func() {
+		defer close(send)
+
+		select {
+		case msg, ok := <-send:
+			LogUtil.LoggerLine(Log.Of("Demo", "test13", "msg", msg))
+			LogUtil.LoggerLine(Log.Of("Demo", "test13", "ok", ok))
+		default:
+			LogUtil.LoggerLine(Log.Of("Demo", "test13", "default", "default"))
+		}
+	}()
+	send <- "Hello world!"
+	close(send)
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test12()
+	demo.test13()
+	//demo.test12()
 	//demo.test11()
 	//demo.test10()
 	//demo.test9()

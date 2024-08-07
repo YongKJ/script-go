@@ -6,12 +6,18 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
+	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/GenUtil"
+	"script-go/src/application/util/LogUtil"
 	"strings"
 	"time"
 )
 
 const (
+	writeWait                  = 10 * time.Second
+	pongWait                   = 60 * time.Second
+	pingPeriod                 = (pongWait * 9) / 10
+	maxMessageSize             = 512
 	websocketStringMessageType = 0
 	websocketIntMessageType    = 1
 	websocketBoolMessageType   = 2
@@ -23,6 +29,7 @@ const (
 
 var (
 	done                            = make(chan struct{})
+	send                            = make(chan []byte, 256)
 	interrupt                       = make(chan os.Signal, 1)
 	websocketMessageSeparatorLen    = len(websocketMessageSeparator)
 	websocketMessagePrefixAndSepIdx = websocketMessagePrefixLen + websocketMessageSeparatorLen - 1
@@ -38,8 +45,9 @@ type (
 )
 
 type SocketClient struct {
-	conn                   *websocket.Conn
 	isReady                bool
+	endpoint               string
+	conn                   *websocket.Conn
 	connectListeners       []onConnectFunc
 	disconnectListeners    []onWebsocketDisconnectFunc
 	nativeMessageListeners []onWebsocketNativeMessageFunc
@@ -47,50 +55,121 @@ type SocketClient struct {
 }
 
 func NewSocketClient(endpoint string) *SocketClient {
+	return &SocketClient{
+		endpoint: endpoint,
+	}
+}
+
+func (s *SocketClient) InitClient(onClose bool) {
+	if onClose {
+		var connectListeners []onConnectFunc
+		var messageListeners map[string][]onMessageFunc
+		var disconnectListeners []onWebsocketDisconnectFunc
+		var nativeMessageListeners []onWebsocketNativeMessageFunc
+		s.nativeMessageListeners = nativeMessageListeners
+		s.disconnectListeners = disconnectListeners
+		s.messageListeners = messageListeners
+		s.connectListeners = connectListeners
+	}
+
+	s.onOpen()
+	s.onMessage()
+	if onClose {
+		s.onClose()
+	}
+}
+
+func (s *SocketClient) onOpen() {
 	dialer := websocket.Dialer{
 		HandshakeTimeout: 10 * time.Second,
 	}
-	conn, _, err := dialer.Dial(endpoint, nil)
+	conn, _, err := dialer.Dial(s.endpoint, nil)
 	if err != nil {
 		log.Println(err)
 	}
-	var connectListeners []onConnectFunc
-	var messageListeners map[string][]onMessageFunc
-	var disconnectListeners []onWebsocketDisconnectFunc
-	var nativeMessageListeners []onWebsocketNativeMessageFunc
-	client := &SocketClient{
-		conn:                   conn,
-		connectListeners:       connectListeners,
-		messageListeners:       messageListeners,
-		disconnectListeners:    disconnectListeners,
-		nativeMessageListeners: nativeMessageListeners,
-	}
-	client.initData(err)
-	return client
-}
 
-func (s *SocketClient) initData(err error) {
-	s.onOpen(err)
-	s.onMessage()
-	s.onClose()
-}
-
-func (s *SocketClient) onOpen(err error) {
-	if err != nil {
-		return
-	}
+	s.conn = conn
+	s.writePump()
 	s.fireConnect()
 	s.isReady = true
 }
 
-func (s *SocketClient) onMessage() {
+func (s *SocketClient) writePump() {
+	ticker := time.NewTicker(pingPeriod)
 	go func() {
-		defer close(done)
+		defer ticker.Stop()
+		for {
+			select {
+			case message, ok := <-send:
+				err := s.conn.SetWriteDeadline(time.Now().Add(writeWait))
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				if !ok {
+					err = s.conn.WriteMessage(websocket.CloseMessage, []byte{})
+					if err != nil {
+						log.Println(err)
+						return
+					}
+					return
+				}
+
+				w, err := s.conn.NextWriter(websocket.TextMessage)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				_, err = w.Write(message)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				if err = w.Close(); err != nil {
+					return
+				}
+			case <-ticker.C:
+				err := s.conn.SetWriteDeadline(time.Now().Add(writeWait))
+				if err != nil {
+					interrupt <- os.Interrupt
+					log.Println(err)
+					return
+				}
+				LogUtil.LoggerLine(Log.Of("SocketClient", "writePump", "heartbeat", "ping"))
+				if err = s.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					interrupt <- os.Interrupt
+					log.Println(err)
+					return
+				}
+			}
+		}
+	}()
+}
+
+func (s *SocketClient) onMessage() {
+	s.conn.SetReadLimit(maxMessageSize)
+	err := s.conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	s.conn.SetPongHandler(func(string) error {
+		err = s.conn.SetReadDeadline(time.Now().Add(pongWait))
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		LogUtil.LoggerLine(Log.Of("SocketClient", "SetPongHandler", "heartbeat", "pong"))
+		return nil
+	})
+	go func() {
 		for {
 			_, message, err := s.conn.ReadMessage()
 			if err != nil {
 				log.Println("read:", err)
-				return
+				interrupt <- os.Interrupt
+				break
 			}
 			log.Printf("recv: %s", message)
 			s.messageReceivedFromConn(string(message))
@@ -107,6 +186,8 @@ func (s *SocketClient) onClose() {
 			return
 		case <-interrupt:
 			log.Println("interrupt")
+			s.fireDisconnect()
+			s.InitClient(false)
 			return
 		}
 	}
@@ -137,7 +218,7 @@ func (s *SocketClient) isNil(obj any) bool {
 }
 
 func (s *SocketClient) _msg(event string, websocketMessageType int, dataMessage string) string {
-	return websocketMessagePrefix + event + websocketMessageSeparator + string(rune(websocketMessageType)) + websocketMessageSeparator + dataMessage
+	return websocketMessagePrefix + event + websocketMessageSeparator + GenUtil.IntToString(websocketMessageType) + websocketMessageSeparator + dataMessage
 }
 
 func (s *SocketClient) encodeMessage(event string, data any) string {
@@ -269,8 +350,23 @@ func (s *SocketClient) Disconnect() {
 func (s *SocketClient) EmitMessage(websocketMessage string) {
 	err := s.conn.WriteMessage(websocket.TextMessage, []byte(websocketMessage))
 	if err != nil {
+		interrupt <- os.Interrupt
+		s.delayEmitMessage(websocketMessage)
 		log.Println(err)
 	}
+}
+
+func (s *SocketClient) delayEmitMessage(websocketMessage string) {
+	timer := time.NewTimer(3 * time.Second)
+	go func() {
+		defer timer.Stop()
+
+		select {
+		case <-timer.C:
+			s.EmitMessage(websocketMessage)
+			return
+		}
+	}()
 }
 
 func (s *SocketClient) Emit(event string, data any) {
