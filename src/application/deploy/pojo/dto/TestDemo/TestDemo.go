@@ -3,12 +3,12 @@ package TestDemo
 import "script-go/src/application/util/DataUtil"
 
 type TestDemo struct {
-	id  int
-	msg string
+	Id  int    `json:"id"`
+	Msg string `json:"msg"`
 }
 
 func newTestDemo(id int, msg string) *TestDemo {
-	return &TestDemo{id: id, msg: msg}
+	return &TestDemo{Id: id, Msg: msg}
 }
 
 func Of(id int, msg string) *TestDemo {
@@ -16,41 +16,50 @@ func Of(id int, msg string) *TestDemo {
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*TestDemo {
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, &TestDemo{}).([]*TestDemo)
+	var lstData []*TestDemo
+	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*TestDemo)
+}
+
+func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
+	return DataUtil.JsonArrayToMaps(jsonArrayStr)
 }
 
 func JsonToObject(jsonStr string) *TestDemo {
 	return DataUtil.JsonToObject(jsonStr, &TestDemo{}).(*TestDemo)
 }
 
-func ArrayToObjects(arrayData []map[string]any) []*TestDemo {
-	return DataUtil.ArrayToObjects(arrayData, &TestDemo{}).([]*TestDemo)
+func JsonToMap(jsonStr string) map[string]any {
+	return DataUtil.JsonToMap(jsonStr)
 }
 
-func MapToObject(mapData map[string]any) *TestDemo {
-	return DataUtil.MapToObject(mapData, &TestDemo{}).(*TestDemo)
+func ObjectsToJsonArray(lstData []*TestDemo) string {
+	return DataUtil.ObjectsToJsonArray(lstData)
+}
+
+func ObjectsToMaps(lstData []*TestDemo) []map[string]any {
+	return DataUtil.ObjectsToMaps(lstData)
+}
+
+func ObjectToJson(data *TestDemo) string {
+	return DataUtil.ObjectToJson(data)
 }
 
 func ObjectToMap(data *TestDemo) map[string]any {
 	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(lstData []*TestDemo) []map[string]any {
-	return DataUtil.ObjectsToArray(lstData)
+func MapsToJsonArray(arrayData []map[string]any) string {
+	return DataUtil.MapsToJsonArray(arrayData)
 }
 
-func (t *TestDemo) Id() int {
-	return t.id
+func MapsToObjects(arrayData []map[string]any) []*TestDemo {
+	return DataUtil.MapsToObjects(arrayData, &TestDemo{}).([]*TestDemo)
 }
 
-func (t *TestDemo) SetId(id int) {
-	t.id = id
+func MapToJson(mapData map[string]any) string {
+	return DataUtil.MapToJson(mapData)
 }
 
-func (t *TestDemo) Msg() string {
-	return t.msg
-}
-
-func (t *TestDemo) SetMsg(msg string) {
-	t.msg = msg
+func MapToObject(mapData map[string]any) *TestDemo {
+	return DataUtil.MapToObject(mapData, &TestDemo{}).(*TestDemo)
 }

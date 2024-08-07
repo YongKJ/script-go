@@ -9,20 +9,20 @@ import (
 )
 
 type Script struct {
-	goName        string
-	goPath        string
-	yamlConfig    string
-	scriptName    string
-	scriptPath    string
-	scriptConfig  string
-	scriptRun     string
-	scriptImport  string
-	scriptProject string
-	distPath      string
+	GoName        string `json:"goName"`
+	GoPath        string `json:"goPath"`
+	YamlConfig    string `json:"yamlConfig"`
+	ScriptName    string `json:"scriptName"`
+	ScriptPath    string `json:"scriptPath"`
+	ScriptConfig  string `json:"scriptConfig"`
+	ScriptRun     string `json:"scriptRun"`
+	ScriptImport  string `json:"scriptImport"`
+	ScriptProject string `json:"scriptProject"`
+	DistPath      string `json:"distPath"`
 }
 
 func newScript(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, scriptProject string, distPath string) *Script {
-	return &Script{goName: goName, goPath: goPath, yamlConfig: yamlConfig, scriptName: scriptName, scriptPath: scriptPath, scriptConfig: scriptConfig, scriptRun: scriptRun, scriptImport: scriptImport, scriptProject: scriptProject, distPath: distPath}
+	return &Script{GoName: goName, GoPath: goPath, YamlConfig: yamlConfig, ScriptName: scriptName, ScriptPath: scriptPath, ScriptConfig: scriptConfig, ScriptRun: scriptRun, ScriptImport: scriptImport, ScriptProject: scriptProject, DistPath: distPath}
 }
 
 func Of(goName string, goPath string, yamlConfig string, scriptName string, scriptPath string, scriptConfig string, scriptRun string, scriptImport string, scriptProject string, distPath string) *Script {
@@ -36,8 +36,8 @@ func Gets() []*Script {
 }
 
 func SetDistPath(script *Script, os string, arch string) {
-	distPath := script.DistPath()
-	scriptPath := script.ScriptPath()
+	distPath := script.DistPath
+	scriptPath := script.ScriptPath
 	if !(os == "windows" && arch == "amd64") {
 		distPath = strings.Join([]string{distPath, os, arch}, "-")
 		scriptPath = strings.Join([]string{scriptPath, os, arch}, "-")
@@ -46,8 +46,8 @@ func SetDistPath(script *Script, os string, arch string) {
 		distPath = distPath + ".exe"
 		scriptPath = scriptPath + ".exe"
 	}
-	script.SetDistPath(distPath)
-	script.SetScriptPath(scriptPath)
+	script.DistPath = distPath
+	script.ScriptPath = scriptPath
 }
 
 func GetListByDir(appletDir string) []*Script {
@@ -106,105 +106,50 @@ func getScript(folder string) string {
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*Script {
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, &Script{}).([]*Script)
+	var lstData []*Script
+	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*Script)
+}
+
+func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
+	return DataUtil.JsonArrayToMaps(jsonArrayStr)
 }
 
 func JsonToObject(jsonStr string) *Script {
 	return DataUtil.JsonToObject(jsonStr, &Script{}).(*Script)
 }
 
-func ArrayToObjects(arrayData []map[string]any) []*Script {
-	return DataUtil.ArrayToObjects(arrayData, &Script{}).([]*Script)
+func JsonToMap(jsonStr string) map[string]any {
+	return DataUtil.JsonToMap(jsonStr)
 }
 
-func MapToObject(mapData map[string]any) *Script {
-	return DataUtil.MapToObject(mapData, &Script{}).(*Script)
+func ObjectsToJsonArray(lstData []*Script) string {
+	return DataUtil.ObjectsToJsonArray(lstData)
+}
+
+func ObjectsToMaps(lstData []*Script) []map[string]any {
+	return DataUtil.ObjectsToMaps(lstData)
+}
+
+func ObjectToJson(data *Script) string {
+	return DataUtil.ObjectToJson(data)
 }
 
 func ObjectToMap(data *Script) map[string]any {
 	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(lstData []*Script) []map[string]any {
-	return DataUtil.ObjectsToArray(lstData)
+func MapsToJsonArray(arrayData []map[string]any) string {
+	return DataUtil.MapsToJsonArray(arrayData)
 }
 
-func (s *Script) GoName() string {
-	return s.goName
+func MapsToObjects(arrayData []map[string]any) []*Script {
+	return DataUtil.MapsToObjects(arrayData, &Script{}).([]*Script)
 }
 
-func (s *Script) SetGoName(goName string) {
-	s.goName = goName
+func MapToJson(mapData map[string]any) string {
+	return DataUtil.MapToJson(mapData)
 }
 
-func (s *Script) GoPath() string {
-	return s.goPath
-}
-
-func (s *Script) SetGoPath(goPath string) {
-	s.goPath = goPath
-}
-
-func (s *Script) YamlConfig() string {
-	return s.yamlConfig
-}
-
-func (s *Script) SetYamlConfig(yamlConfig string) {
-	s.yamlConfig = yamlConfig
-}
-
-func (s *Script) ScriptName() string {
-	return s.scriptName
-}
-
-func (s *Script) SetScriptName(scriptName string) {
-	s.scriptName = scriptName
-}
-
-func (s *Script) ScriptPath() string {
-	return s.scriptPath
-}
-
-func (s *Script) SetScriptPath(scriptPath string) {
-	s.scriptPath = scriptPath
-}
-
-func (s *Script) ScriptConfig() string {
-	return s.scriptConfig
-}
-
-func (s *Script) SetScriptConfig(scriptConfig string) {
-	s.scriptConfig = scriptConfig
-}
-
-func (s *Script) ScriptImport() string {
-	return s.scriptImport
-}
-
-func (s *Script) SetScriptImport(scriptImport string) {
-	s.scriptImport = scriptImport
-}
-
-func (s *Script) ScriptRun() string {
-	return s.scriptRun
-}
-
-func (s *Script) SetScriptRun(scriptRun string) {
-	s.scriptRun = scriptRun
-}
-
-func (s *Script) ScriptProject() string {
-	return s.scriptProject
-}
-
-func (s *Script) SetScriptProject(scriptProject string) {
-	s.scriptProject = scriptProject
-}
-
-func (s *Script) DistPath() string {
-	return s.distPath
-}
-
-func (s *Script) SetDistPath(distPath string) {
-	s.distPath = distPath
+func MapToObject(mapData map[string]any) *Script {
+	return DataUtil.MapToObject(mapData, &Script{}).(*Script)
 }

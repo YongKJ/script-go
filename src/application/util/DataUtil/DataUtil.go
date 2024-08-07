@@ -7,47 +7,94 @@ import (
 	"unsafe"
 )
 
-func JsonArrayToObjects(jsonStr string, class any) any {
-	var arrayData []map[string]any
-	err := json.Unmarshal([]byte(jsonStr), &arrayData)
-	if err != nil {
-		log.Println(err)
-	}
-	return ArrayToObjects(arrayData, class)
-}
-
 func JsonArrayToMaps(jsonStr string) []map[string]any {
 	var arrayData []map[string]any
-	err := json.Unmarshal([]byte(jsonStr), &arrayData)
+	return JsonArrayToObjects(jsonStr, arrayData).([]map[string]any)
+}
+
+func JsonArrayToObjects(jsonStr string, class any) any {
+	err := json.Unmarshal([]byte(jsonStr), &class)
 	if err != nil {
-		log.Println(err)
+		log.Println("[DateUtil] JsonArrayToObjects -> json.Unmarshal: ", err)
 	}
-	return arrayData
+	return class
 }
 
 func JsonToMap(jsonStr string) map[string]any {
 	var mapData map[string]any
 	err := json.Unmarshal([]byte(jsonStr), &mapData)
 	if err != nil {
-		log.Println(err)
+		log.Println("[DateUtil] JsonToMap -> json.Unmarshal: ", err)
 	}
 	return mapData
 }
 
 func JsonToObject(jsonStr string, class any) any {
-	var mapData map[string]any
-	err := json.Unmarshal([]byte(jsonStr), &mapData)
+	err := json.Unmarshal([]byte(jsonStr), class)
 	if err != nil {
-		log.Println(err)
+		log.Println("[DateUtil] JsonToObject -> json.Unmarshal: ", err)
 	}
-	return MapToObject(mapData, class)
+	return class
+}
+
+func ObjectsToJsonArray[A ~[]E, E any](classes A) string {
+	bytes, err := json.Marshal(classes)
+	if err != nil {
+		log.Println("[DateUtil] ObjectsToJsonArray -> json.Marshal: ", err)
+	}
+	return string(bytes)
+}
+
+func ObjectsToMaps[A ~[]E, E any](classes A) []map[string]any {
+	jsonStr := ObjectsToJsonArray(classes)
+	return JsonArrayToMaps(jsonStr)
+}
+
+func ObjectToJson(class any) string {
+	bytes, err := json.Marshal(class)
+	if err != nil {
+		log.Println("[DateUtil] ObjectToString -> json.Marshal: ", err)
+	}
+	return string(bytes)
 }
 
 func ObjectToMap(class any) map[string]any {
-	return getMap(class)
+	jsonStr := ObjectToJson(class)
+	return JsonToMap(jsonStr)
+}
+
+func MapsToJsonArray(lstData []map[string]any) string {
+	bytes, err := json.Marshal(lstData)
+	if err != nil {
+		log.Println("[DateUtil] MapsToJsonArray -> json.Marshal: ", err)
+	}
+	return string(bytes)
+}
+
+func MapsToObjects(lstData []map[string]any, class any) any {
+	jsonStr := MapsToJsonArray(lstData)
+	return JsonArrayToObjects(jsonStr, class)
+}
+
+func MapToJson(mapData map[string]any) string {
+	bytes, err := json.Marshal(mapData)
+	if err != nil {
+		log.Println("[DateUtil] MapToJson -> json.Marshal: ", err)
+	}
+	return string(bytes)
+}
+
+func MapToObject(mapData map[string]any, class any) any {
+	jsonStr := MapToJson(mapData)
+	return JsonToObject(jsonStr, class)
 }
 
 func ObjectsToArray[A ~[]E, E any](classes A) []map[string]any {
+	jsonStr := ObjectsToJsonArray(classes)
+	return JsonArrayToMaps(jsonStr)
+}
+
+func ObjectsToArrayOld[A ~[]E, E any](classes A) []map[string]any {
 	length := len(classes)
 	lstData := make([]map[string]any, length)
 	for i := 0; i < length; i++ {
@@ -56,7 +103,7 @@ func ObjectsToArray[A ~[]E, E any](classes A) []map[string]any {
 	return lstData
 }
 
-func MapToObject(mapData map[string]any, class any) any {
+func MapToObjectOld(mapData map[string]any, class any) any {
 	return getObject(mapData, class)
 }
 
@@ -102,7 +149,7 @@ func getObject(mapData map[string]any, class any) any {
 			}
 		case reflect.Ptr:
 			cpyValues := reflect.New(types.Field(i).Type).Interface()
-			refValue = reflect.ValueOf(MapToObject(fieldValue.(map[string]any), cpyValues))
+			refValue = reflect.ValueOf(MapToObjectOld(fieldValue.(map[string]any), cpyValues))
 		default:
 			refValue = reflect.ValueOf(fieldValue)
 		}

@@ -6,12 +6,12 @@ import (
 )
 
 type DemoTest struct {
-	id  int
-	msg string
+	Id  int    `json:"id"`
+	Msg string `json:"msg"`
 }
 
 func newDemoTest(id int, msg string) *DemoTest {
-	return &DemoTest{id: id, msg: msg}
+	return &DemoTest{Id: id, Msg: msg}
 }
 
 func Of(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
@@ -19,41 +19,50 @@ func Of(id int, msg string, testDemo *TestDemo.TestDemo) *DemoTest {
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*DemoTest {
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, &DemoTest{}).([]*DemoTest)
+	var lstData []*DemoTest
+	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*DemoTest)
+}
+
+func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
+	return DataUtil.JsonArrayToMaps(jsonArrayStr)
 }
 
 func JsonToObject(jsonStr string) *DemoTest {
 	return DataUtil.JsonToObject(jsonStr, &DemoTest{}).(*DemoTest)
 }
 
-func ArrayToObjects(arrayData []map[string]any) []*DemoTest {
-	return DataUtil.ArrayToObjects(arrayData, &DemoTest{}).([]*DemoTest)
+func JsonToMap(jsonStr string) map[string]any {
+	return DataUtil.JsonToMap(jsonStr)
 }
 
-func MapToObject(mapData map[string]any) *DemoTest {
-	return DataUtil.MapToObject(mapData, &DemoTest{}).(*DemoTest)
+func ObjectsToJsonArray(lstData []*DemoTest) string {
+	return DataUtil.ObjectsToJsonArray(lstData)
+}
+
+func ObjectsToMaps(lstData []*DemoTest) []map[string]any {
+	return DataUtil.ObjectsToMaps(lstData)
+}
+
+func ObjectToJson(data *DemoTest) string {
+	return DataUtil.ObjectToJson(data)
 }
 
 func ObjectToMap(data *DemoTest) map[string]any {
 	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(lstData []*DemoTest) []map[string]any {
-	return DataUtil.ObjectsToArray(lstData)
+func MapsToJsonArray(arrayData []map[string]any) string {
+	return DataUtil.MapsToJsonArray(arrayData)
 }
 
-func (d *DemoTest) Id() int {
-	return d.id
+func MapsToObjects(arrayData []map[string]any) []*DemoTest {
+	return DataUtil.MapsToObjects(arrayData, &DemoTest{}).([]*DemoTest)
 }
 
-func (d *DemoTest) SetId(id int) {
-	d.id = id
+func MapToJson(mapData map[string]any) string {
+	return DataUtil.MapToJson(mapData)
 }
 
-func (d *DemoTest) Msg() string {
-	return d.msg
-}
-
-func (d *DemoTest) SetMsg(msg string) {
-	d.msg = msg
+func MapToObject(mapData map[string]any) *DemoTest {
+	return DataUtil.MapToObject(mapData, &DemoTest{}).(*DemoTest)
 }

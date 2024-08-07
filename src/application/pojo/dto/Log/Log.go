@@ -5,18 +5,18 @@ import (
 )
 
 type Log struct {
-	className  string
-	methodName string
-	paramName  string
-	value      any
+	ClassName  string `json:"className"`
+	MethodName string `json:"methodName"`
+	ParamName  string `json:"paramName"`
+	Value      any    `json:"value"`
 }
 
 func newLog(className string, methodName string, paramName string, value any) *Log {
 	return &Log{
-		className:  className,
-		methodName: methodName,
-		paramName:  paramName,
-		value:      value,
+		ClassName:  className,
+		MethodName: methodName,
+		ParamName:  paramName,
+		Value:      value,
 	}
 }
 
@@ -25,57 +25,50 @@ func Of(className string, methodName string, paramName string, value any) *Log {
 }
 
 func JsonArrayToObjects(jsonArrayStr string) []*Log {
-	return DataUtil.JsonArrayToObjects(jsonArrayStr, &Log{}).([]*Log)
+	var lstData []*Log
+	return DataUtil.JsonArrayToObjects(jsonArrayStr, lstData).([]*Log)
+}
+
+func JsonArrayToMaps(jsonArrayStr string) []map[string]any {
+	return DataUtil.JsonArrayToMaps(jsonArrayStr)
 }
 
 func JsonToObject(jsonStr string) *Log {
 	return DataUtil.JsonToObject(jsonStr, &Log{}).(*Log)
 }
 
-func ArrayToObjects(arrayData []map[string]any) []*Log {
-	return DataUtil.ArrayToObjects(arrayData, &Log{}).([]*Log)
+func JsonToMap(jsonStr string) map[string]any {
+	return DataUtil.JsonToMap(jsonStr)
 }
 
-func MapToObject(mapData map[string]any) *Log {
-	return DataUtil.MapToObject(mapData, &Log{}).(*Log)
+func ObjectsToJsonArray(lstData []*Log) string {
+	return DataUtil.ObjectsToJsonArray(lstData)
+}
+
+func ObjectsToMaps(lstData []*Log) []map[string]any {
+	return DataUtil.ObjectsToMaps(lstData)
+}
+
+func ObjectToJson(data *Log) string {
+	return DataUtil.ObjectToJson(data)
 }
 
 func ObjectToMap(data *Log) map[string]any {
 	return DataUtil.ObjectToMap(data)
 }
 
-func ObjectsToArray(lstData []*Log) []map[string]any {
-	return DataUtil.ObjectsToArray(lstData)
+func MapsToJsonArray(arrayData []map[string]any) string {
+	return DataUtil.MapsToJsonArray(arrayData)
 }
 
-func (l *Log) Value() any {
-	return l.value
+func MapsToObjects(arrayData []map[string]any) []*Log {
+	return DataUtil.MapsToObjects(arrayData, &Log{}).([]*Log)
 }
 
-func (l *Log) SetValue(value any) {
-	l.value = value
+func MapToJson(mapData map[string]any) string {
+	return DataUtil.MapToJson(mapData)
 }
 
-func (l *Log) ParamName() string {
-	return l.paramName
-}
-
-func (l *Log) SetParamName(paramName string) {
-	l.paramName = paramName
-}
-
-func (l *Log) MethodName() string {
-	return l.methodName
-}
-
-func (l *Log) SetMethodName(methodName string) {
-	l.methodName = methodName
-}
-
-func (l *Log) ClassName() string {
-	return l.className
-}
-
-func (l *Log) SetClassName(className string) {
-	l.className = className
+func MapToObject(mapData map[string]any) *Log {
+	return DataUtil.MapToObject(mapData, &Log{}).(*Log)
 }

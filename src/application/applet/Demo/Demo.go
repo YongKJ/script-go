@@ -79,7 +79,7 @@ func (d *Demo) test3() {
 		"msg": "Demo test.",
 	}
 
-	lstObjData := DemoTest.ArrayToObjects(lstData)
+	lstObjData := DemoTest.MapsToObjects(lstData)
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "lstObjData", lstObjData))
 
 	objData := DataUtil.DeepCopy(lstObjData[0])
