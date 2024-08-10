@@ -258,7 +258,7 @@ func GetPathByOS(path string) string {
 
 func GetMd5Str(str string) string {
 	hash := md5.Sum([]byte(str))
-	return hex.EncodeToString(hash[:])
+	return strings.ToUpper(hex.EncodeToString(hash[:]))
 }
 
 func IsEmpty(object interface{}) bool {

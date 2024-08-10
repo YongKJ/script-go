@@ -239,9 +239,23 @@ func (d *Demo) test14() {
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test3", "lstObjData", lstObjData))
 }
 
+func (d *Demo) test15() {
+	userName := "yongkj"
+	password := "*Dxj1003746818"
+	userNameEncode := GenUtil.GetEncode(userName)
+	passwordEncode := GenUtil.GetEncode(GenUtil.GetMd5Str(password))
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test15", "userNameEncode", userNameEncode))
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test15", "passwordEncode", passwordEncode))
+
+	refreshToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWZyZXNoU3RyIjoiQ3JCQ0RVRk1GVUZZRFlCS1lCeUJEQTFyQVlzQU5vZ0ZZQ3kyMkFqZ0ZvQmUyQThzUUtMUUFNK2lBNG91TnVPTUNqcG84ZUFNekErYUFJb3NBak5tUXNBdkVBIiwiZXhwIjoxNzIzMjk3NDUyLCJuYmYiOjE3MjMyMTEwNTIsImlhdCI6MTcyMzIxMTA1Mn0.cx4M73-jz4Ke6ZlGM3VKpLihESoD5YlggCpFHc5EdrI"
+	refreshTokenEncode := GenUtil.GetEncode(refreshToken)
+	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test15", "refreshTokenEncode", refreshTokenEncode))
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test14()
+	demo.test15()
+	//demo.test14()
 	//demo.test13()
 	//demo.test12()
 	//demo.test11()
