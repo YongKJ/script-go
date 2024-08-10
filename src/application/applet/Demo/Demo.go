@@ -6,7 +6,6 @@ import (
 	"fmt"
 	lzstring "github.com/daku10/go-lz-string"
 	"github.com/jinzhu/copier"
-	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -125,13 +124,13 @@ func (d *Demo) test5() {
 func (d *Demo) test6() {
 	appPath, err := filepath.Abs(os.Args[0])
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "filepath.Abs", err))
 	}
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "appPath", appPath))
 
 	execPath, err := os.Executable()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "os.Executable", err))
 	}
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "execPath", execPath))
 }
@@ -139,7 +138,7 @@ func (d *Demo) test6() {
 func (d *Demo) test7() {
 	execPath, err := os.Executable()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("ApplicationTest", "test7", "os.Executable", err))
 	}
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test6", "execPath", execPath))
 
@@ -167,7 +166,7 @@ func (d *Demo) test9() {
 	cpyDemoTest := reflect.New(values.Type()).Interface()
 	err := copier.Copy(cpyDemoTest, demoTest)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("ApplicationTest", "test9", "copier.Copy", err))
 	}
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test9", "cpyDemoTest", cpyDemoTest))
 }

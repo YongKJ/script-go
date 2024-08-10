@@ -8,41 +8,42 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-cmd/cmd"
 	"io"
-	"log"
 	"os"
 	"os/exec"
+	"script-go/src/application/pojo/dto/Log"
+	"script-go/src/application/util/LogUtil"
 	"sync"
 )
 
 func ChangeWorkFolder(home string) {
 	err := os.Chdir(home)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ChangeWorkFolder", "os.Chdir", err))
 	}
 }
 
 func ExecLocalCmdByPty(bin string, args ...string) {
 	ptyClient, err := pty.New()
 	if err != nil {
-		log.Fatalf("failed to open pty: %s", err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByPty", "pty.New", err))
 	}
 
 	defer ptyClient.Close()
 	c := ptyClient.Command(bin, args...)
 	if err := c.Start(); err != nil {
-		log.Fatalf("failed to start: %s", err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByPty", "ptyClient.Command", err))
 	}
 
 	go io.Copy(os.Stdout, ptyClient)
 
 	if err = c.Wait(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByPty", "c.Wait", err))
 	}
 }
 
 func ExecLocalCmdByTea(bin string, args ...string) {
 	if _, err := tea.NewProgram(newExecModel(bin, args)).Run(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByTea", "tea.NewProgram", err))
 	}
 }
 
@@ -98,7 +99,7 @@ func ExecLocalCmdByAsyncTest(bin string, args ...string) {
 
 	stdout, err := terminal.StdoutPipe()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByAsyncTest", "terminal.StdoutPipe", err))
 	}
 
 	var wg sync.WaitGroup
@@ -113,13 +114,13 @@ func ExecLocalCmdByAsyncTest(bin string, args ...string) {
 	}()
 
 	if err = terminal.Start(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByAsyncTest", "terminal.Start", err))
 	}
 
 	wg.Wait()
 
 	if err = terminal.Wait(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByAsyncTest", "terminal.Wait", err))
 	}
 
 }
@@ -133,7 +134,7 @@ func ExecLocalCmdByAsync(bin string, args ...string) {
 
 	stdout, err := terminal.StdoutPipe()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByAsync", "terminal.StdoutPipe", err))
 		_ = terminal.Process.Kill()
 	}
 	readOut := bufio.NewReader(stdout)
@@ -144,7 +145,7 @@ func ExecLocalCmdByAsync(bin string, args ...string) {
 
 	stderr, err := terminal.StderrPipe()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdByAsync", "terminal.StderrPipe", err))
 		_ = terminal.Process.Kill()
 	}
 	readErr := bufio.NewReader(stderr)
@@ -186,24 +187,24 @@ func ExecLocalCmdSimpleTest(bin string, args ...string) {
 
 	stdout, err := terminal.StdoutPipe()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdSimpleTest", "terminal.StdoutPipe", err))
 		_ = terminal.Process.Kill()
 	}
 	go io.Copy(os.Stdout, stdout)
 
 	stderr, err := terminal.StderrPipe()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdSimpleTest", "terminal.StderrPipe", err))
 		_ = terminal.Process.Kill()
 	}
 	go io.Copy(os.Stdout, stderr)
 
 	if err = terminal.Start(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdSimpleTest", "terminal.Start", err))
 	}
 
 	if err = terminal.Wait(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdSimpleTest", "terminal.Wait", err))
 	}
 }
 
@@ -222,6 +223,6 @@ func ExecLocalCmdSimple(bin string, args ...string) {
 		fmt.Println(errStr)
 	}
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("RemoteUtil", "ExecLocalCmdSimple", "terminal.Run", err))
 	}
 }

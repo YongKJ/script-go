@@ -2,7 +2,6 @@ package RemoteUtil
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"log"
 	"os/exec"
 	"script-go/src/application/pojo/dto/Log"
 	"script-go/src/application/util/GenUtil"
@@ -23,7 +22,7 @@ func (m *execModel) Init() tea.Cmd {
 	return tea.ExecProcess(
 		exec.Command(m.bin, m.args...),
 		func(err error) tea.Msg {
-			log.Println(err)
+			LogUtil.LoggerLine(Log.Of("Model", "Init", "tea.ExecProcess", err))
 			return tea.Quit()
 		},
 	)

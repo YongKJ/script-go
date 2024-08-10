@@ -7,12 +7,14 @@ import (
 	"github.com/integralist/go-findroot/find"
 	"github.com/shirou/gopsutil/disk"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"script-go/src/application/pojo/dto/Log"
+	"script-go/src/application/util/GenUtil"
+	"script-go/src/application/util/LogUtil"
 	"strings"
 	"time"
 )
@@ -24,7 +26,7 @@ func Disks() []*disk.UsageStat {
 	parts, err := disk.Partitions(true)
 	disks := make([]*disk.UsageStat, len(parts))
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Disks", "disk.Partitions", err))
 		return disks
 	}
 
@@ -32,7 +34,7 @@ func Disks() []*disk.UsageStat {
 	for _, part := range parts {
 		usage, err := disk.Usage(part.Mountpoint)
 		if err != nil {
-			log.Println(err)
+			LogUtil.LoggerLine(Log.Of("FileUtil", "Disks", "disk.Usage", err))
 		}
 		disks[i] = usage
 		i += 1
@@ -49,11 +51,17 @@ func AppDir() string {
 	if err != nil {
 		appDir, _ := filepath.Abs(rootDir.Path)
 		baseDir = appDir
-		log.Println(err)
+		if runtime.GOOS == "windows" && strings.Contains(baseDir, "/") {
+			baseDir = strings.Replace(baseDir, "/", "\\", -1)
+		}
+		LogUtil.LoggerLine(Log.Of("FileUtil", "AppDir", "find.Repo", err))
 		return baseDir
 	}
 
 	baseDir = rootDir.Path
+	if runtime.GOOS == "windows" && strings.Contains(baseDir, "/") {
+		baseDir = strings.Replace(baseDir, "/", "\\", -1)
+	}
 	return baseDir
 }
 
@@ -75,7 +83,7 @@ func Desktop() string {
 func WorkFolder() string {
 	folder, err := os.Getwd()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "WorkFolder", "os.Getwd", err))
 	}
 	return folder
 }
@@ -121,7 +129,7 @@ func Type(fileName string) string {
 	}
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Type", "os.Open", err))
 		return ""
 	}
 	defer file.Close()
@@ -129,7 +137,7 @@ func Type(fileName string) string {
 	buffer := make([]byte, 512)
 	n, err := file.Read(buffer)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Type", "file.Read", err))
 		return ""
 	}
 
@@ -139,7 +147,8 @@ func Type(fileName string) string {
 func Date(fileName string) time.Time {
 	fileTime, err := times.Stat(fileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Date", "times.Stat", err))
+		return time.Now()
 	}
 	return fileTime.BirthTime()
 }
@@ -147,7 +156,8 @@ func Date(fileName string) time.Time {
 func ModDate(fileName string) time.Time {
 	fileTime, err := times.Stat(fileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "ModDate", "times.Stat", err))
+		return time.Now()
 	}
 	return fileTime.ModTime()
 }
@@ -168,7 +178,7 @@ func IsFile(fileName string) bool {
 func Mkdir(fileName string) {
 	err := os.MkdirAll(fileName, 0755)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Mkdir", "os.MkdirAll", err))
 	}
 }
 
@@ -176,6 +186,7 @@ func List(fileName string) []string {
 	files, err := os.ReadDir(fileName)
 	names := make([]string, len(files))
 	if err != nil {
+		LogUtil.LoggerLine(Log.Of("FileUtil", "List", "os.ReadDir", err))
 		return names
 	}
 	i := 0
@@ -187,17 +198,7 @@ func List(fileName string) []string {
 }
 
 func ListFolderByArray(fileName string) []string {
-	return listToStrArray(listFolder(fileName))
-}
-
-func listToStrArray(lstData *list.List) []string {
-	i := 0
-	arrayData := make([]string, lstData.Len())
-	for data := lstData.Front(); data != nil; data = data.Next() {
-		arrayData[i] = data.Value.(string)
-		i++
-	}
-	return arrayData
+	return GenUtil.ListToStrArray(listFolder(fileName))
 }
 
 func ListFolder(fileName string) *list.List {
@@ -221,7 +222,7 @@ func listFolder(fileName string) *list.List {
 func Read(fileName string) string {
 	content, err := os.ReadFile(fileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Read", "os.ReadFile", err))
 	}
 	return string(content)
 }
@@ -229,7 +230,7 @@ func Read(fileName string) string {
 func ReadByLine(fileName string) []string {
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "ReadByLine", "os.Open", err))
 	}
 	defer file.Close()
 
@@ -239,7 +240,7 @@ func ReadByLine(fileName string) []string {
 		lines.PushBack(scanner.Text())
 	}
 	if err := scanner.Err(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "ReadByLine", "scanner.Err", err))
 	}
 
 	i := 0
@@ -254,7 +255,7 @@ func ReadByLine(fileName string) []string {
 func ReadByLineAndFunc(fileName string, lineFunc func(line string)) {
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "ReadByLineAndFunc", "os.Open", err))
 	}
 
 	defer file.Close()
@@ -265,14 +266,14 @@ func ReadByLineAndFunc(fileName string, lineFunc func(line string)) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "ReadByLineAndFunc", "scanner.Err", err))
 	}
 }
 
 func WriteStream(fileName string, content []byte) {
 	file, err := os.OpenFile(fileName, os.O_CREATE, 0755)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "WriteStream", "os.OpenFile", err))
 		return
 	}
 
@@ -280,14 +281,14 @@ func WriteStream(fileName string, content []byte) {
 
 	_, err = file.Write(content)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "WriteStream", "file.Write", err))
 	}
 }
 
-func WriteContent(fileName string, content string) {
+func Write(fileName string, content string) {
 	file, err := os.OpenFile(fileName, os.O_CREATE, 0755)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Write", "os.OpenFile", err))
 		return
 	}
 
@@ -295,37 +296,26 @@ func WriteContent(fileName string, content string) {
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		log.Println(err)
-	}
-}
-
-func Write(fileName string, content string) {
-	WriteFile(fileName, content)
-}
-
-func WriteFile(fileName string, content string) {
-	err := os.WriteFile(fileName, []byte(content), 0755)
-	if err != nil {
-		panic(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Write", "file.WriteString", err))
 	}
 }
 
 func Append(fileName string, content string) {
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, 0755)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Append", "os.OpenFile", err))
 	}
 	defer file.Close()
 
 	if _, err := file.WriteString(content); err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Append", "file.WriteString", err))
 	}
 }
 
 func Move(srcFileName string, desFileName string) {
 	err := os.Rename(srcFileName, desFileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Move", "os.Rename", err))
 	}
 }
 
@@ -338,19 +328,19 @@ func Copy(srcFileName string, desFileName string) {
 
 	srcFile, err := os.Open(srcFileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Copy", "os.Open", err))
 	}
 	defer srcFile.Close()
 
 	desFile, err := os.Create(desFileName)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Copy", "os.Create", err))
 	}
 	defer desFile.Close()
 
 	_, err = io.Copy(desFile, srcFile)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("FileUtil", "Copy", "io.Copy", err))
 	}
 }
 
@@ -376,35 +366,33 @@ func Delete(fileName string) {
 	if IsFile(fileName) {
 		err := os.Remove(fileName)
 		if err != nil {
-			log.Println(err)
+			LogUtil.LoggerLine(Log.Of("FileUtil", "Delete", "os.Remove", err))
 		}
 	}
 
 	if IsFolder(fileName) {
 		err := os.RemoveAll(fileName)
 		if err != nil {
-			log.Println(err)
+			LogUtil.LoggerLine(Log.Of("FileUtil", "Delete", "os.RemoveAll", err))
 		}
 	}
 }
 
 func ModFile(path string, regStr string, isAll bool, value string) {
-	ModifyFile(path, regStr, isAll, func(lstMatchStr []string) string {
+	ModifyFile(path, regStr, isAll, func(matchStr string) string {
 		return value
 	})
 }
 
-func ModifyFile(path string, regStr string, isAll bool, valueFunc func(lstMatchStr []string) string) {
+func ModifyFile(path string, regStr string, isAll bool, valueFunc func(matchStr string) string) {
 	content := Read(path)
 	regex := regexp.MustCompile(regStr)
 	if isAll {
-		content = regex.ReplaceAllStringFunc(content, func(matchStr string) string {
-			return valueFunc([]string{matchStr})
-		})
+		content = regex.ReplaceAllStringFunc(content, valueFunc)
 	} else {
 		parts := regex.FindStringSubmatch(content)
 		if len(parts) > 0 {
-			content = strings.Replace(content, parts[0], valueFunc(parts), 1)
+			content = strings.Replace(content, parts[0], valueFunc(parts[0]), 1)
 		}
 	}
 	Write(path, content)
@@ -418,11 +406,7 @@ func ModContent(path string, regStr string, isAll bool, value string) {
 
 func Modify(path string, regStr string, isAll bool, valueFunc func(matchStr string) string) {
 	content := Read(path)
-	lineBreak := "\n"
-	if strings.Contains(content, "\r\n") {
-		lineBreak = "\r\n"
-	}
-	lines := strings.Split(content, lineBreak)
+	lines := ReadByLine(path)
 	regex := regexp.MustCompile(regStr)
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
@@ -434,10 +418,11 @@ func Modify(path string, regStr string, isAll bool, valueFunc func(matchStr stri
 		if len(parts) == 0 {
 			continue
 		}
-		lines[i] = strings.Replace(line, parts[1], valueFunc(parts[1]), 1)
+		newLine := strings.Replace(line, parts[1], valueFunc(parts[1]), 1)
+		content = strings.Replace(content, line, newLine, 1)
 		if !isAll {
 			break
 		}
 	}
-	Write(path, strings.Join(lines, lineBreak))
+	Write(path, content)
 }

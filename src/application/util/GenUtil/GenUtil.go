@@ -11,7 +11,6 @@ import (
 	lzstring "github.com/daku10/go-lz-string"
 	"github.com/golang-module/carbon/v2"
 	"gopkg.in/yaml.v3"
-	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -38,7 +37,7 @@ func ReadParams() []string {
 	reader := bufio.NewReader(os.Stdin)
 	text, err := reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "ReadParams", "reader.ReadString", err))
 	}
 	return StrToArray(strings.TrimSpace(text), " ")
 }
@@ -62,7 +61,7 @@ func GetConfig(config string) map[string]any {
 	mapData := make(map[string]any)
 	err := yaml.Unmarshal([]byte(content), &mapData)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "GetConfig", "yaml.Unmarshal", err))
 	}
 
 	return mapData
@@ -71,7 +70,7 @@ func GetConfig(config string) map[string]any {
 func GetConfigPath(config string) string {
 	execPath, err := os.Executable()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "GetConfigPath", "os.Executable", err))
 	}
 	execDir := filepath.Dir(execPath)
 	path := filepath.Join(execDir, config)
@@ -88,7 +87,7 @@ func GetConfigPath(config string) string {
 func GetYaml() string {
 	execPath, err := os.Executable()
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "GetYaml", "os.Executable", err))
 	}
 	if strings.Contains(execPath, "script_go") ||
 		strings.Contains(execPath, "script_go_test") {
@@ -453,7 +452,7 @@ func GetSizeStr(size float64) string {
 func Decimal(num float64) float64 {
 	num, err := strconv.ParseFloat(fmt.Sprintf("%.2f", num), 64)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "Decimal", "strconv.ParseFloat", err))
 	}
 	return num
 }
@@ -461,7 +460,7 @@ func Decimal(num float64) float64 {
 func StrToInt(numStr string) int {
 	num, err := strconv.Atoi(numStr)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "StrToInt", "strconv.Atoi", err))
 	}
 	return num
 }
@@ -473,7 +472,7 @@ func StrToBoolean(str string) bool {
 func StrToFloat64(numStr string) float64 {
 	num, err := strconv.ParseFloat(numStr, 64)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "StrToFloat64", "strconv.ParseFloat", err))
 	}
 	return num
 }
@@ -485,7 +484,7 @@ func BoolToString(boolData bool) string {
 func MapToString(mapData map[string]any) string {
 	jsonStr, err := json.Marshal(mapData)
 	if err != nil {
-		log.Println(err)
+		LogUtil.LoggerLine(Log.Of("GenUtil", "MapToString", "json.Marshal", err))
 		return ""
 	}
 	return string(jsonStr)
