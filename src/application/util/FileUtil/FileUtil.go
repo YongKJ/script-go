@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"runtime"
 	"script-go/src/application/pojo/dto/Log"
-	"script-go/src/application/util/GenUtil"
 	"script-go/src/application/util/LogUtil"
 	"strings"
 	"time"
@@ -198,7 +197,17 @@ func List(fileName string) []string {
 }
 
 func ListFolderByArray(fileName string) []string {
-	return GenUtil.ListToStrArray(listFolder(fileName))
+	return listToStrArray(listFolder(fileName))
+}
+
+func listToStrArray(lstData *list.List) []string {
+	i := 0
+	arrayData := make([]string, lstData.Len())
+	for data := lstData.Front(); data != nil; data = data.Next() {
+		arrayData[i] = data.Value.(string)
+		i++
+	}
+	return arrayData
 }
 
 func ListFolder(fileName string) *list.List {
