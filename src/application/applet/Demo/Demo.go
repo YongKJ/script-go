@@ -251,9 +251,32 @@ func (d *Demo) test15() {
 	LogUtil.LoggerLine(Log.Of("ApplicationTest", "test15", "refreshTokenEncode", refreshTokenEncode))
 }
 
+func (d *Demo) test16() {
+	path := "D:\\Document\\MyCodes\\Gitea\\api-go\\src\\application\\common\\module\\socketio"
+	checkGoFile(path)
+}
+
+func checkGoFile(folder string) {
+	files := FileUtil.List(folder)
+	for _, file := range files {
+		filePath := filepath.Join(folder, file)
+		if FileUtil.IsFolder(filePath) {
+			checkGoFile(filePath)
+			continue
+		}
+
+		if !strings.HasSuffix(filePath, ".go") {
+			continue
+		}
+
+		FileUtil.ModFile(filePath, "github.com/googollee/go-socket.io", true, "api-go/src/application/common/module/socketio")
+	}
+}
+
 func Run() {
 	demo := newDemo()
-	demo.test15()
+	demo.test16()
+	//demo.test15()
 	//demo.test14()
 	//demo.test13()
 	//demo.test12()

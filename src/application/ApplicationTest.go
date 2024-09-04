@@ -1,6 +1,6 @@
 package application
 
-import "script-go/src/application/applet/CHello"
+import "script-go/src/application/applet/Demo"
 
 type ApplicationTest struct {
 }
@@ -10,6 +10,7 @@ func NewApplicationTest() *ApplicationTest {
 }
 
 func (a *ApplicationTest) Test() {
-	CHello.Run()
-	//Demo.Run()
+	//BuildScriptService.Run()
+	//CHello.Run()
+	Demo.Run()
 }
