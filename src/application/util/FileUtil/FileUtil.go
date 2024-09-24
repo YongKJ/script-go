@@ -280,7 +280,7 @@ func ReadByLineAndFunc(fileName string, lineFunc func(line string)) {
 }
 
 func WriteStream(fileName string, content []byte) {
-	file, err := os.OpenFile(fileName, os.O_CREATE, 0755)
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 	if err != nil {
 		LogUtil.LoggerLine(Log.Of("FileUtil", "WriteStream", "os.OpenFile", err))
 		return
@@ -295,7 +295,7 @@ func WriteStream(fileName string, content []byte) {
 }
 
 func Write(fileName string, content string) {
-	file, err := os.OpenFile(fileName, os.O_CREATE, 0755)
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 	if err != nil {
 		LogUtil.LoggerLine(Log.Of("FileUtil", "Write", "os.OpenFile", err))
 		return
