@@ -388,20 +388,22 @@ func Delete(fileName string) {
 }
 
 func ModFile(path string, regStr string, isAll bool, value string) {
-	ModifyFile(path, regStr, isAll, func(matchStr string) string {
+	ModifyFile(path, regStr, isAll, func(matchStr ...string) string {
 		return value
 	})
 }
 
-func ModifyFile(path string, regStr string, isAll bool, valueFunc func(matchStr string) string) {
+func ModifyFile(path string, regStr string, isAll bool, valueFunc func(partsStr ...string) string) {
 	content := Read(path)
 	regex := regexp.MustCompile(regStr)
 	if isAll {
-		content = regex.ReplaceAllStringFunc(content, valueFunc)
+		content = regex.ReplaceAllStringFunc(content, func(str string) string {
+			return valueFunc(str)
+		})
 	} else {
 		parts := regex.FindStringSubmatch(content)
 		if len(parts) > 0 {
-			content = strings.Replace(content, parts[0], valueFunc(parts[0]), 1)
+			content = strings.Replace(content, parts[0], valueFunc(parts...), 1)
 		}
 	}
 	Write(path, content)
