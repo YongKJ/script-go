@@ -410,13 +410,17 @@ func ModifyFile(path string, regStr string, isAll bool, valueFunc func(partsStr 
 }
 
 func ModContent(path string, regStr string, isAll bool, value string) {
-	Modify(path, regStr, isAll, func(matchStr string) string {
+	ModifyContent(path, regStr, isAll, func(matchStr ...string) string {
 		return value
 	})
 }
 
-func Modify(path string, regStr string, isAll bool, valueFunc func(matchStr string) string) {
+func ModifyContent(path string, regStr string, isAll bool, valueFunc func(matchStr ...string) string) {
 	content := Read(path)
+	contentBreak := "\n"
+	if strings.Contains(content, "\r\n") {
+		contentBreak = "\r\n"
+	}
 	lines := ReadByLine(path)
 	regex := regexp.MustCompile(regStr)
 	for i := 0; i < len(lines); i++ {
@@ -429,11 +433,25 @@ func Modify(path string, regStr string, isAll bool, valueFunc func(matchStr stri
 		if len(parts) == 0 {
 			continue
 		}
-		newLine := strings.Replace(line, parts[1], valueFunc(parts[1]), 1)
-		content = strings.Replace(content, line, newLine, 1)
+		lines[i] = strings.Replace(line, parts[1], valueFunc(parts...), 1)
 		if !isAll {
 			break
 		}
 	}
-	Write(path, content)
+	Write(path, arrayToStr(lines, contentBreak))
+}
+
+func arrayToStr(lstStr []string, separator string) string {
+	tempStr := ""
+	for _, str := range lstStr {
+		if len(separator) == 0 {
+			tempStr += str + " "
+			continue
+		}
+		tempStr += str + separator
+	}
+	if len(separator) > 0 {
+		return tempStr[0 : len(tempStr)-len(separator)]
+	}
+	return tempStr[0 : len(tempStr)-1]
 }
