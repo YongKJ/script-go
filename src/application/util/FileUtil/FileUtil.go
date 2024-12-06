@@ -421,8 +421,8 @@ func ModifyContent(path string, regStr string, isAll bool, valueFunc func(matchS
 	if strings.Contains(content, "\r\n") {
 		contentBreak = "\r\n"
 	}
-	lines := ReadByLine(path)
 	regex := regexp.MustCompile(regStr)
+	lines := strings.Split(content, contentBreak)
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
 		match := regex.MatchString(line)
